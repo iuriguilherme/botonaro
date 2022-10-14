@@ -26,9 +26,9 @@ class BotConfig(BaseSettings):
     plugins: dict = dict(
         enable = [
             'admin',
-            'default',
         ], # enable
         disable = [
+            'default',
             'archive',
             'cryptoforex',
             'donate',
