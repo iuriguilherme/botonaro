@@ -91,7 +91,7 @@ class BotConfig(BaseSettings):
                     ),
                 ), # debug
                 info = os.environ.get(
-                    'DEBUG_CHAT',
+                    'INFO_CHAT',
                     default_config.telegram.get(
                         'users',
                         {'special': {'info': 0}},
