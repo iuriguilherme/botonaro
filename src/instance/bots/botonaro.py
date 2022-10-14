@@ -1,8 +1,9 @@
 """t.me/botonarobot"""
 
+import os
 from dotenv import load_dotenv
 from pydantic import BaseSettings
-from iacecil.config.default_bot import DefaultBotConfig
+from iacecil.config import DefaultBotConfig
 
 default_config = DefaultBotConfig()
 load_dotenv()
