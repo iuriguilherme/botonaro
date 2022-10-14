@@ -52,5 +52,59 @@ class BotConfig(BaseSettings):
     ) # plugins
     telegram: dict = dict(
         default_config.telegram.copy(),
-        token = os.environ.get('TELEGRAM_TOKEN', ''), ## Arquivo .env
+        token = os.environ.get(
+            'TELEGRAM_TOKEN',
+            default_config.telegram.get('token'),
+        ), # token
+        users = dict(
+            default_config.telegram.get('users', {}).copy(),
+            alpha = os.environ.get(
+                'ADMIN_CHAT',
+                default_config.telegram.get(
+                    'users',
+                    {'alpha': []},
+                ).get(
+                    'alpha',
+                    [],
+                ),
+            ), # alpha
+            special = dict(
+                default_config.telegram.get(
+                    'users',
+                    {'special': {}},
+                ).get(
+                    'special',
+                    {},
+                ).copy(),
+                debug = os.environ.get(
+                    'DEBUG_CHAT',
+                    default_config.telegram.get(
+                        'users',
+                        {'special': {'debug': 0}},
+                    ).get(
+                        'special',
+                        {'debug': 0},
+                    ).get(
+                        'debug',
+                        0,
+                    ),
+                ), # debug
+                info = os.environ.get(
+                    'DEBUG_CHAT',
+                    default_config.telegram.get(
+                        'users',
+                        {'special': {'info': 0}},
+                    ).get(
+                        'special',
+                        {'info': 0},
+                    ).get(
+                        'info',
+                        0,
+                    ),
+                ), # debug
+                ), # info
+                # ~ feedback = dict(
+                # ~ ), # feedback
+            ), # special
+        ), # users
     ) # telegram
