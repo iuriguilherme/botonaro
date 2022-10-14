@@ -101,7 +101,6 @@ class BotConfig(BaseSettings):
                         'info',
                         0,
                     ),
-                ), # debug
                 ), # info
                 # ~ feedback = dict(
                 # ~ ), # feedback
