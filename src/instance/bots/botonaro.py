@@ -1,5 +1,6 @@
 """t.me/botonarobot"""
 
+import json
 import os
 from dotenv import load_dotenv
 from pydantic import BaseSettings
@@ -58,16 +59,16 @@ class BotConfig(BaseSettings):
         ), # token
         users = dict(
             default_config.telegram.get('users', {}).copy(),
-            alpha = os.environ.get(
-                'ADMIN_CHAT',
+            alpha = json.loads(os.environ.get(
+                'ADMIN_CHATS',
                 default_config.telegram.get(
                     'users',
-                    {'alpha': []},
+                    {'alpha': ','.join([0])},
                 ).get(
                     'alpha',
-                    [],
+                    ','.join([0]),
                 ),
-            ), # alpha
+            )), # alpha
             special = dict(
                 default_config.telegram.get(
                     'users',
