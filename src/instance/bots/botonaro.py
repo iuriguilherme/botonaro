@@ -63,10 +63,10 @@ class BotConfig(BaseSettings):
                 'ADMIN_CHATS',
                 default_config.telegram.get(
                     'users',
-                    {'alpha': ','.join([0])},
+                    {'alpha': ','.join(['0'])},
                 ).get(
                     'alpha',
-                    ','.join([0]),
+                    ','.join(['0']),
                 ),
             )), # alpha
             special = dict(

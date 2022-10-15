@@ -9,6 +9,7 @@ pipenv-setup = "*"
 pydantic = {extras = ['dotenv'], version = "*"}
 
 [dev-packages]
+iacecil = {editable = true, ref = "stable", git = "https://github.com/iuriguilherme/iacecil.git"}
 botonaro = {editable = true, path = "."}
 
 [requires]
