@@ -14,6 +14,7 @@ from aiogram import (
     filters,
     types,
 )
+from importlib import import_module
 from iacecil.controllers.aiogram_bot.callbacks import (
     command_callback,
     message_callback,
@@ -134,247 +135,83 @@ async def busca_frase(palavras: list[str]) -> list[ResultMixin]:
         try:
             retornos[1]
         except IndexError:
-            raise
+            retorno: ResultMixin = ResultMixin()
+            retorno.titulo: str = """não me recordo de nada no tocante a essa \
+qüestão aí talquei"""
+            retornos: list = [retorno]
         return retornos
     except Exception as e:
         logger.exception(e)
-        ## TODO: responder isto somente se tiver 0 resultados na busca
-        retorno: ResultMixin = ResultMixin()
-        retorno.titulo: str = """não me recordo de nada no tocante a essa \
-qüestão aí talquei"""
-        retornos: list = [retorno]
         # ~ logger.debug(f"""len(retornos) = {len(retornos)}\nretornos.titulo = {[
             # ~ retorno.titulo for retorno in retornos]}""")
-        return retornos
+        return []
 
 async def add_instance_handlers(dispatcher: Dispatcher) -> None:
     """Registra handlers para aiogram.Dispatcher, lida com Telegram"""
     try:
-        ## TODO compreensão de lista e import_module URGENTE
         ## Estes módulos são gerados por outros scripts em tempo de execução,
         ## não tem como manter o código em versionamento (ou tem?)
-        from geracao_1 import (
-            gatilhos_1,
-            gatilhos_2,
-            gatilhos_3,
-            gatilhos_5,
-            gatilhos_6,
-            gatilhos_7,
-            gatilhos_8,
-            respostas_1,
-            respostas_2,
-            respostas_3,
-            respostas_4,
-            respostas_5,
-            respostas_6,
-            respostas_7,
-            respostas_8,
-        )
-        @dispatcher.message_handler(is_reply_to_id = dispatcher.bot.id)
-        async def palavras_4_callback(message: types.Message) -> None:
+        async def palavras_callback(
+            message: types.Message,
+            geracao: str,
+            gatilho: str,
+            respostas: object,
+        ) -> None:
+            """
+            Retorna palavra gerada associada a gatilho de uma geração 
+            específica  
+            """
             try:
-                descriptions: list = [
-                    'botonaro',
-                    'geracao1',
-                    'gatilho4',
-                    dispatcher.config.personalidade,
-                    message.chat.type,
-                ] # descriptions
+                descriptions: list = ['botonaro', geracao, gatilho,
+                    dispatcher.config.personalidade, message.chat.type]
                 await message_callback(message, descriptions)
                 await command_callback(await message.reply(
-                    await respostas_4()), descriptions)
-            except Exception as e1:
-                logger.exception(e1)
-                await error_callback("Erro treplicando", message,
-                    e1, ['exception'] + descriptions)
-        @dispatcher.message_handler(
-            filters.Regexp(r'\b({})\b'.format('|'.join(await gatilhos_1()))),
-            filters.ChatTypeFilter([
-                types.ChatType.GROUP,
-                types.ChatType.SUPERGROUP,
-            ]),
-        )
-        async def palavras_1_callback(message: types.Message) -> None:
-            """Geração 1 de gatilhos e respostas, gatilhos 1"""
-            try:
-                descriptions: list = [
-                    'botonaro',
-                    'geracao1',
-                    'gatilho1',
-                    dispatcher.config.personalidade,
-                    message.chat.type,
-                ] # descriptions
-                await message_callback(message, descriptions)
-                # ~ command: Union[types.Message, None] = None
-                # ~ if (await dice_low(15)):
-                    # ~ command = await message.reply(await respostas_1())
-                # ~ if command is not None:
-                    # ~ await command_callback(command, descriptions)
-                await command_callback(await message.reply(
-                    await respostas_1()), descriptions)
+                    await respostas()), descriptions)
             except Exception as e1:
                 logger.exception(e1)
                 await error_callback("Erro respondendo gatilho", message,
                     e1, ['exception'] + descriptions)
-        @dispatcher.message_handler(
-            filters.Regexp(r'\b({})\b'.format('|'.join(await gatilhos_2()))),
-            is_reply_to_id = dispatcher.bot.id,
-        )
-        async def palavras_2_callback(message: types.Message) -> None:
-            """Geração 1 de gatilhos e respostas, gatilhos 2"""
-            try:
-                descriptions: list = [
-                    'botonaro',
-                    'geracao1',
-                    'gatilho2',
-                    dispatcher.config.personalidade,
-                    message.chat.type,
-                ] # descriptions
-                await message_callback(message, descriptions)
-                await command_callback(await message.reply(
-                    await respostas_2()), descriptions)
-            except Exception as e1:
-                logger.exception(e1)
-                await error_callback("Erro respondendo gatilho", message,
-                    e1, ['exception'] + descriptions)
-        @dispatcher.message_handler(
-            filters.Regexp(r'\b({})\b'.format('|'.join(await gatilhos_3()))),
-            filters.ChatTypeFilter([
-                types.ChatType.GROUP,
-                types.ChatType.SUPERGROUP,
-            ]),
-        )
-        async def palavras_3_callback(message: types.Message) -> None:
-            """Geração 1 de gatilhos e respostas, gatilhos 3"""
-            try:
-                descriptions: list = [
-                    'botonaro',
-                    'geracao1',
-                    'gatilho3',
-                    dispatcher.config.personalidade,
-                    message.chat.type,
-                ] # descriptions
-                await message_callback(message, descriptions)
-                await command_callback(await message.reply(
-                    await respostas_3()), descriptions)
-            except Exception as e1:
-                logger.exception(e1)
-                await error_callback("Erro respondendo gatilho", message,
-                    e1, ['exception'] + descriptions)
-        @dispatcher.message_handler(
-            filters.Regexp(r'\b({})\b'.format('|'.join(await gatilhos_5()))),
-            filters.ChatTypeFilter([
-                types.ChatType.GROUP,
-                types.ChatType.SUPERGROUP,
-            ]),
-        )
-        async def palavras_5_callback(message: types.Message) -> None:
-            """Geração 1 de gatilhos e respostas, gatilhos 5"""
-            try:
-                descriptions: list = [
-                    'botonaro',
-                    'geracao1',
-                    'gatilho5',
-                    dispatcher.config.personalidade,
-                    message.chat.type,
-                ] # descriptions
-                await message_callback(message, descriptions)
-                await command_callback(await message.reply(
-                    await respostas_5()), descriptions)
-            except Exception as e1:
-                logger.exception(e1)
-                await error_callback("Erro respondendo gatilho", message,
-                    e1, ['exception'] + descriptions)
-        @dispatcher.message_handler(
-            filters.Regexp(r'\b({})\b'.format('|'.join(await gatilhos_6()))),
-            filters.ChatTypeFilter([
-                types.ChatType.GROUP,
-                types.ChatType.SUPERGROUP,
-            ]),
-        )
-        async def palavras_6_callback(message: types.Message) -> None:
-            """Geração 1 de gatilhos e respostas, gatilhos 6"""
-            try:
-                descriptions: list = [
-                    'botonaro',
-                    'geracao1',
-                    'gatilho6',
-                    dispatcher.config.personalidade,
-                    message.chat.type,
-                ] # descriptions
-                await message_callback(message, descriptions)
-                await command_callback(await message.reply(
-                    await respostas_6()), descriptions)
-            except Exception as e1:
-                logger.exception(e1)
-                await error_callback("Erro respondendo gatilho", message,
-                    e1, ['exception'] + descriptions)
-        @dispatcher.message_handler(
-            filters.Regexp(r'\b({})\b'.format('|'.join(await gatilhos_7()))),
-            filters.ChatTypeFilter([
-                types.ChatType.GROUP,
-                types.ChatType.SUPERGROUP,
-            ]),
-        )
-        async def palavras_7_callback(message: types.Message) -> None:
-            """Geração 1 de gatilhos e respostas, gatilhos 7"""
-            try:
-                descriptions: list = [
-                    'botonaro',
-                    'geracao1',
-                    'gatilho7',
-                    dispatcher.config.personalidade,
-                    message.chat.type,
-                ] # descriptions
-                await message_callback(message, descriptions)
-                await command_callback(await message.reply(
-                    await respostas_7()), descriptions)
-            except Exception as e1:
-                logger.exception(e1)
-                await error_callback("Erro respondendo gatilho", message,
-                    e1, ['exception'] + descriptions)
-        @dispatcher.message_handler(
-            filters.Regexp(r'\b({})\b'.format('|'.join(await gatilhos_8()))),
-            filters.ChatTypeFilter([
-                types.ChatType.GROUP,
-                types.ChatType.SUPERGROUP,
-            ]),
-        )
-        async def palavras_8_callback(message: types.Message) -> None:
-            """Geração 1 de gatilhos e respostas, gatilhos 8"""
-            try:
-                descriptions: list = [
-                    'botonaro',
-                    'geracao1',
-                    'gatilho8',
-                    dispatcher.config.personalidade,
-                    message.chat.type,
-                ] # descriptions
-                await message_callback(message, descriptions)
-                await command_callback(await message.reply(
-                    await respostas_8()), descriptions)
-            except Exception as e1:
-                logger.exception(e1)
-                await error_callback("Erro respondendo gatilho", message,
-                    e1, ['exception'] + descriptions)
-        @dispatcher.message_handler(filters.CommandStart())
-        async def start_callback(message: types.Message) -> None:
-            """Responde /start"""
-            try:
-                descriptions: list = [
-                    'botonaro',
-                    'geracao1',
-                    'start',
-                    dispatcher.config.personalidade,
-                    message.chat.type,
-                ] # descriptions
-                await message_callback(message, descriptions)
-                await command_callback(await message.reply(
-                    await respostas_6()), descriptions)
-            except Exception as e1:
-                logger.exception(e1)
-                await error_callback("Erro respondendo gatilho", message,
-                    e1, ['exception'] + descriptions)
+        geracoes: list = []
+        for g in range(1):
+            geracao[g]: object = import_module('geracao_' + str(g))
+            for n in range(1, geracao[g].gatilhos):
+                try:
+                    dispatcher.register_message_handler(
+                        palavras_callback,
+                        filters.Regexp(
+                            r"\b({})\b".format(
+                                "|".join(
+                                    await getattr(
+                                        geracao[g],
+                                        'gatilhos_' + str(n),
+                                    )()
+                                )
+                            )
+                        ),
+                        filters.ChatTypeFilter([
+                            types.ChatType.GROUP,
+                            types.ChatType.SUPERGROUP,
+                        ]),
+                        geracao = str(g),
+                        gatilhos = str(n),
+                        respostas = getattr(geracao[g], "respostas_" + str(n)),
+                    ) # register_message_handler
+                except Exception as e2:
+                    logger.exception(e2)
+            dispatcher.message_handler(
+                palavras_callback,
+                is_reply_to_id = dispatcher.bot.id,
+                geracao = str(g),
+                gatilhos = "4",
+                respostas = getattr(geracao[g], "respostas_" + "4"),
+            )
+            dispatcher.register_message_handler(
+                palavras_callback,
+                filters.CommandStart(),
+                geracao = str(g),
+                gatilhos = "6",
+                respostas = getattr(geracao[g], "respostas_" + "6"),
+            )
     except Exception as e:
         logger.error("Arquivos não foram gerados corretamente")
         logger.exception(e)

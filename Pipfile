@@ -4,13 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-iacecil = {git = "https://github.com/iuriguilherme/iacecil.git", ref = "stable"}
+iacecil = {editable = "true", git = "https://github.com/iuriguilherme/iacecil.git", ref = "v0.2.6"}
 pipenv-setup = "*"
 pydantic = {extras = ['dotenv'], version = "*"}
 
 [dev-packages]
-iacecil = {editable = true, ref = "stable", git = "https://github.com/iuriguilherme/iacecil.git"}
-botonaro = {editable = true, path = "."}
+iacecil = {editable = "true", ref = "stable", git = "https://github.com/iuriguilherme/iacecil.git"}
+botonaro = {editable = "true", path = "."}
 
 [requires]
 python_version = "3.9"
