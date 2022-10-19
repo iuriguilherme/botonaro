@@ -189,7 +189,10 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
                     e1, ['exception'] + descriptions)
         @dispatcher.message_handler(
             filters.Regexp(r'\b({})\b'.format('|'.join(await gatilhos_1()))),
-            # ~ is_reply_to_id = dispatcher.bot.id,
+            filters.ChatTypeFilter([
+                types.ChatType.GROUP,
+                types.ChatType.SUPERGROUP,
+            ]),
         )
         async def palavras_1_callback(message: types.Message) -> None:
             """Geração 1 de gatilhos e respostas, gatilhos 1"""
@@ -236,6 +239,10 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
                     e1, ['exception'] + descriptions)
         @dispatcher.message_handler(
             filters.Regexp(r'\b({})\b'.format('|'.join(await gatilhos_3()))),
+            filters.ChatTypeFilter([
+                types.ChatType.GROUP,
+                types.ChatType.SUPERGROUP,
+            ]),
         )
         async def palavras_3_callback(message: types.Message) -> None:
             """Geração 1 de gatilhos e respostas, gatilhos 3"""
@@ -256,6 +263,10 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
                     e1, ['exception'] + descriptions)
         @dispatcher.message_handler(
             filters.Regexp(r'\b({})\b'.format('|'.join(await gatilhos_5()))),
+            filters.ChatTypeFilter([
+                types.ChatType.GROUP,
+                types.ChatType.SUPERGROUP,
+            ]),
         )
         async def palavras_5_callback(message: types.Message) -> None:
             """Geração 1 de gatilhos e respostas, gatilhos 5"""
@@ -276,6 +287,10 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
                     e1, ['exception'] + descriptions)
         @dispatcher.message_handler(
             filters.Regexp(r'\b({})\b'.format('|'.join(await gatilhos_6()))),
+            filters.ChatTypeFilter([
+                types.ChatType.GROUP,
+                types.ChatType.SUPERGROUP,
+            ]),
         )
         async def palavras_6_callback(message: types.Message) -> None:
             """Geração 1 de gatilhos e respostas, gatilhos 6"""
@@ -296,6 +311,10 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
                     e1, ['exception'] + descriptions)
         @dispatcher.message_handler(
             filters.Regexp(r'\b({})\b'.format('|'.join(await gatilhos_7()))),
+            filters.ChatTypeFilter([
+                types.ChatType.GROUP,
+                types.ChatType.SUPERGROUP,
+            ]),
         )
         async def palavras_7_callback(message: types.Message) -> None:
             """Geração 1 de gatilhos e respostas, gatilhos 7"""
@@ -316,6 +335,10 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
                     e1, ['exception'] + descriptions)
         @dispatcher.message_handler(
             filters.Regexp(r'\b({})\b'.format('|'.join(await gatilhos_8()))),
+            filters.ChatTypeFilter([
+                types.ChatType.GROUP,
+                types.ChatType.SUPERGROUP,
+            ]),
         )
         async def palavras_8_callback(message: types.Message) -> None:
             """Geração 1 de gatilhos e respostas, gatilhos 8"""
