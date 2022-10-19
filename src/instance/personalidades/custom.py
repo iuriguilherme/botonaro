@@ -25,6 +25,12 @@ from iacecil.controllers.util import (
     dice_low,
 )
 
+class ItemMixin(object):
+    """Modelo para item individual de busca"""
+    texto: str
+    def __repr__(self):
+        return f"<ItemMixin(texto: {self.texto}>"
+
 class ResultMixin(object):
     """Modelo para resultado da busca"""
     link: str
@@ -76,6 +82,17 @@ async def bytes_to_soup(html: bytes) -> typing.Union[bs4.BeautifulSoup, None]:
         logger.exception(e)
         return None
 
+async def parse_item(rows: bs4.element.ResultSet) -> ItemMixin:
+    """Parse HTML into Python Object"""
+    try:
+        item: ItemMixin = ItemMixin()
+        item.texto: str = rows[1].find('p').text
+        # ~ logger.debug(item)
+        return item
+    except Exception as e:
+        logger.exception(e)
+        return None
+
 async def parse_result(result_item: bs4.element.Tag) -> ResultMixin:
     """Parse HTML into Python Object"""
     try:
@@ -93,7 +110,7 @@ async def parse_result(result_item: bs4.element.Tag) -> ResultMixin:
         ## tempo desnecessariamente. O nome das tags mudou pelo menos uma vez 
         ## durante a fase de testes desse conjunto de subrotinas. 
         ## RESTful API or GTFO. </rant>
-        columns: bs4.elements.ResultSet = result_item.find_all('div', 's1')
+        columns: bs4.element.ResultSet = result_item.find_all('div', 's1')
         result.link: str = columns[0].find('a', 'icon-eye').get('href')
         result.titulo: str = result_item.find('div', 's5').text
         result.fonte: str = columns[1].find('i').get('class')[1].split('-'
@@ -104,18 +121,38 @@ async def parse_result(result_item: bs4.element.Tag) -> ResultMixin:
         result.url: str = columns[5].find('a').get('href')
         result.midia: list[str] = [a.get('href') for a in \
             columns[6].find_all('a')]
-        logger.debug(result)
+        # ~ logger.debug(result)
         return result
     except Exception as e:
         logger.exception(e)
         return None
 
-async def busca_frase(palavras: list[str]) -> list[ResultMixin]:
-    """Retorna o resultado de uma busca em FONTE_URL"""
+async def busca_item(link: str) -> ItemMixin:
+    """Retorna os dados de um dos itens de uma busca a partir de link"""
     try:
-        fonte_url: str = os.environ.get('FONTE_URL')
-        sources: list = os.environ.get('SOURCES_BUSCA').split(',')
-        start_date: str = os.environ.get('START_DATE_BUSCA')
+        fonte_url: str = os.environ.get("BASE_URL", "http://example.com")
+        url: str = f"{fonte_url}/" + f"{link}"
+        soup: BeautifulSoup = await bytes_to_soup(await html_to_bytes(url))
+        results: bs4.element.ResultSet = soup.find('div', 'memoitem-container',
+            ).find_all('div', 'row')
+        return await parse_item(results)
+    except Exception as e:
+        logger.exception(e)
+        item: ItemMixin = ItemMixin()
+        item.texto: str = ""
+        return item
+
+async def busca_frase(
+    palavras: list[str],
+) -> typing.Union[list, list[ResultMixin]]:
+    """Retorna o resultado de uma busca em BASE_URL"""
+    try:
+        fonte_url: str = "/".join([
+            os.environ.get("BASE_URL", "http://example.com"),
+            os.environ.get("LIST_ROUTE", "/"),
+        ])
+        sources: list = os.environ.get("SOURCES_BUSCA").split(',')
+        start_date: str = os.environ.get("START_DATE_BUSCA")
         end_date: str = datetime.datetime.today().strftime("%Y-%m-%d")
         url: str = f"{fonte_url}/?" \
             + "&".join([f"source={source}" for source in sources]) \
@@ -132,9 +169,11 @@ async def busca_frase(palavras: list[str]) -> list[ResultMixin]:
         retornos: list = [await parse_result(result) for result in results]
         # ~ logger.debug(f"""len(retornos) = {len(retornos)}\nretornos.titulo = {[
             # ~ retorno.titulo for retorno in retornos]}""")
+        # ~ logger.debug(str(retornos))
         try:
-            retornos[1]
-        except IndexError:
+            retornos[0]
+        except IndexError as e1:
+            logger.exception(e1)
             retorno: ResultMixin = ResultMixin()
             retorno.titulo: str = """não me recordo de nada no tocante a essa \
 qüestão aí talquei"""
@@ -172,46 +211,76 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
                 await error_callback("Erro respondendo gatilho", message,
                     e1, ['exception'] + descriptions)
         geracoes: list = []
-        for g in range(1):
-            geracao[g]: object = import_module('geracao_' + str(g))
-            for n in range(1, geracao[g].gatilhos):
-                try:
-                    dispatcher.register_message_handler(
-                        palavras_callback,
-                        filters.Regexp(
-                            r"\b({})\b".format(
-                                "|".join(
-                                    await getattr(
-                                        geracao[g],
-                                        'gatilhos_' + str(n),
-                                    )()
+        for g in range(1, 1):
+            try:
+                geracao[g]: object = import_module('geracao_' + str(g))
+                for n in range(1, geracao[g].gatilhos):
+                    try:
+                        dispatcher.register_message_handler(
+                            palavras_callback,
+                            filters.Regexp(
+                                r"\b({})\b".format(
+                                    "|".join(
+                                        await getattr(
+                                            geracao[g],
+                                            'gatilhos_' + str(n),
+                                        )()
+                                    )
                                 )
-                            )
-                        ),
-                        filters.ChatTypeFilter([
-                            types.ChatType.GROUP,
-                            types.ChatType.SUPERGROUP,
-                        ]),
+                            ),
+                            filters.ChatTypeFilter([
+                                types.ChatType.GROUP,
+                                types.ChatType.SUPERGROUP,
+                            ]),
+                            geracao = str(g),
+                            gatilhos = str(n),
+                            respostas = getattr(
+                                geracao[g],
+                                "respostas_" + str(n),
+                            ),
+                        ) # register_message_handler
+                    except Exception as e2:
+                        logger.exception(e2)
+                @dispatcher.message_handler(
+                    filters.ChatTypeFilter(
+                        types.ChatType.PRIVATE,
+                        types.ChatType.GROUP,
+                        types.ChatType.SUPERGROUP,
+                    ),
+                    is_reply_to_id = dispatcher.bot.id,
+                )
+                async def reply_callback(message: types.Message) -> None:
+                    """Resposta específica para mensagens como respostas"""
+                    return await palavras_callback(
+                        message,
                         geracao = str(g),
-                        gatilhos = str(n),
-                        respostas = getattr(geracao[g], "respostas_" + str(n)),
-                    ) # register_message_handler
-                except Exception as e2:
-                    logger.exception(e2)
-            dispatcher.message_handler(
-                palavras_callback,
-                is_reply_to_id = dispatcher.bot.id,
-                geracao = str(g),
-                gatilhos = "4",
-                respostas = getattr(geracao[g], "respostas_" + "4"),
-            )
-            dispatcher.register_message_handler(
-                palavras_callback,
-                filters.CommandStart(),
-                geracao = str(g),
-                gatilhos = "9",
-                respostas = getattr(geracao[g], "respostas_" + "9"),
-            )
+                        gatilhos = "4",
+                        respostas = getattr(geracao[g], "respostas_" + "4"),
+                    )
+                ## FIXME: Robô desgraçado responde /start com busca_natural
+                ## (handler registrado no final deste arquivo)
+                ## Eu quase quebrei a mesa tentando descobrir porquê, esse
+                ## método aqui pelo jeito não faz bosta nenhuma
+                @dispatcher.message_handler(
+                    filters.ChatTypeFilter(
+                        types.ChatType.PRIVATE,
+                        types.ChatType.GROUP,
+                        types.ChatType.SUPERGROUP,
+                    ),
+                    commands = ['start'],
+                )
+                async def start_callback(message: types.Message) -> None:
+                    """Resposta específica para comando /start"""
+                    return await palavras_callback(
+                        message,
+                        geracao = str(g),
+                        gatilhos = "9",
+                        respostas = getattr(geracao[g], "respostas_" + "9"),
+                    )
+            except Exception as e1:
+                logger.exception(e1)
+            else:
+                logger.debug("Carregado geracao_" + str(g))
     except Exception as e:
         logger.error("Arquivos não foram gerados corretamente")
         logger.exception(e)
@@ -230,9 +299,11 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
             try:
                 await command_callback(
                     await message.reply(
-                        text = random.choice(
-                            await busca_frase(message.get_args().split(' ')),
-                        ).titulo, # text
+                        text = (await busca_item(random.choice([
+                            frase for frase in \
+                            await busca_frase(message.get_args().split(' ')) \
+                            if hasattr(frase, 'link')
+                        ]).link)).texto,
                     ), # reply
                     descriptions,
                 ) # command_callback
@@ -253,13 +324,16 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
                 await message_callback(message, descriptions)
                 await command_callback(
                     await message.reply(
-                        text = random.choice(await busca_frase([
-                            termo \
-                            for termo in \
-                            message.text.split(' ') \
-                            if termo not in \
-                            ['fala', 'sobre']
-                        ])).titulo, # text
+                        text = (await busca_item(random.choice([
+                            frase for frase in \
+                            await busca_frase([
+                                termo \
+                                for termo in \
+                                message.text.split(' ') \
+                                if termo not in \
+                                ['fala', 'sobre']
+                            ]) if hasattr(frase, 'link')
+                        ]).link)).texto, # text
                     ), # reply
                     descriptions,
                 ) # command_callback
