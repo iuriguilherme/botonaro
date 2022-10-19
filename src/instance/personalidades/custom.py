@@ -209,8 +209,8 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
                 palavras_callback,
                 filters.CommandStart(),
                 geracao = str(g),
-                gatilhos = "6",
-                respostas = getattr(geracao[g], "respostas_" + "6"),
+                gatilhos = "9",
+                respostas = getattr(geracao[g], "respostas_" + "9"),
             )
     except Exception as e:
         logger.error("Arquivos não foram gerados corretamente")
