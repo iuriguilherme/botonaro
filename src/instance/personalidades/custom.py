@@ -267,16 +267,20 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
                 logger.exception(e1)
                 await error_callback("Erro buscando frase", message,
                     e1, ['exception'] + descriptions)
-        @dispatcher.message_handler(filters.Regexp(r'\bfala sobre\b'))
+        @dispatcher.message_handler(
+            filters.Regexp(r'\bfala sobre\b'),
+            content_types = types.ContentTypes.TEXT,
+        )
         async def busca_natural_callback(message: types.Message) -> None:
             await busca_natural(message)
         @dispatcher.message_handler(
             filters.ChatTypeFilter(types.ChatType.PRIVATE),
+            content_types = types.ContentTypes.TEXT,
         )
         async def busca_private_callback(message: types.Message) -> None:
             await busca_natural(message)
         @dispatcher.message_handler(
-            content_types = types.ContentTypes.ANY,
+            content_types = types.ContentTypes.TEXT,
             state = "*",
         )
         async def chance_busca_callback(message: types.Message) -> None:
