@@ -163,8 +163,9 @@ async def busca_frase(
         soup: BeautifulSoup = await bytes_to_soup(await html_to_bytes(url))
         # ~ logger.debug(f"len(soup) = {len(soup)}")
         # ~ logger.debug(f"soup = {str(soup)}")
-        results: bs4.element.ResultSet = soup.find('div', 'search-results',
-            ).find_all('div', 'result-item')
+        # ~ logger.debug(soup.find('div', 'search-results'))
+        results: bs4.element.ResultSet = soup.find('div', 'search-results')
+        results: bs4.element.ResultSet = results.find_all('div', 'result-item')
         # ~ logger.debug(f"len(results) = {len(results)}")
         retornos: list = [await parse_result(result) for result in results]
         # ~ logger.debug(f"""len(retornos) = {len(retornos)}\nretornos.titulo = {[
