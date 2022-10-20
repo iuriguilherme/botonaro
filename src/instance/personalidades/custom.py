@@ -121,7 +121,6 @@ async def parse_result(result_item: bs4.element.Tag) -> ResultMixin:
         result.url: str = columns[5].find('a').get('href')
         result.midia: list[str] = [a.get('href') for a in \
             columns[6].find_all('a')]
-        # ~ logger.debug(result)
         return result
     except Exception as e:
         logger.exception(e)
@@ -159,19 +158,16 @@ async def busca_frase(
             + f"&content={'%20'.join(palavras)}" \
             + f"&start_date={start_date}" \
             + f"&end_date={end_date}"
-        # ~ logger.debug(f"url = {url}")
+        logger.debug(f"Buscando em {url}")
         soup: BeautifulSoup = await bytes_to_soup(await html_to_bytes(url))
-        # ~ logger.debug(f"len(soup) = {len(soup)}")
-        # ~ logger.debug(f"soup = {str(soup)}")
-        # ~ logger.debug(soup.find('div', 'search-results'))
-        results: bs4.element.ResultSet = soup.find('div', 'search-results')
-        results: bs4.element.ResultSet = results.find_all('div', 'result-item')
-        # ~ logger.debug(f"len(results) = {len(results)}")
-        retornos: list = [await parse_result(result) for result in results]
-        # ~ logger.debug(f"""len(retornos) = {len(retornos)}\nretornos.titulo = {[
-            # ~ retorno.titulo for retorno in retornos]}""")
-        # ~ logger.debug(str(retornos))
         try:
+            results: bs4.element.ResultSet = soup.find('div', 'search-results')
+            results: bs4.element.ResultSet = results.find_all(
+                'div',
+                'result-item',
+            )
+            retornos: list = [await parse_result(result) for result in results]
+            logger.debug(f"Encontrados {len(retornos)} resultados")
             retornos[0]
         except IndexError as e1:
             logger.exception(e1)
