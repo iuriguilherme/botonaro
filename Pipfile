@@ -7,6 +7,7 @@ name = "pypi"
 iacecil = {editable = "true", git = "https://github.com/iuriguilherme/iacecil.git", ref = "v0.2.6"}
 pipenv-setup = "*"
 pydantic = {extras = ['dotenv'], version = "*"}
+botonaro = {editable = true, path = "."}
 
 [dev-packages]
 iacecil = {editable = "true", ref = "stable", git = "https://github.com/iuriguilherme/iacecil.git"}

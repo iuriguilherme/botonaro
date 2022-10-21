@@ -1,5 +1,10 @@
-"""Personalidade ia.cecil: Botonaro"""
+"""
+Personalidade ia.cecil: Botonaro
 
+Copyright 2022 Iuri Guilherme <https://iuri.neocities.org/>  
+
+Creative Commons 4.0 Attribution Share Alike  
+"""
 import logging
 logger = logging.getLogger(__name__)
 
@@ -16,8 +21,8 @@ from aiogram import (
     types,
 )
 from aiogram.utils import markdown
+## FIXME engambelada enquanto ia.cecil não migra pra aiogram 3
 from aiogram.types import InputFile as URLInputFile
-from importlib import import_module
 from iacecil.controllers.aiogram_bot.callbacks import (
     command_callback,
     message_callback,
@@ -250,90 +255,10 @@ async def busca_frase(
         return retornos
     except Exception as e:
         logger.exception(e)
-        # ~ logger.debug(f"""len(retornos) = {len(retornos)}\nretornos.titulo = {[
-            # ~ retorno.titulo for retorno in retornos]}""")
         return []
 
 async def add_instance_handlers(dispatcher: Dispatcher) -> None:
     """Registra handlers para aiogram.Dispatcher, lida com Telegram"""
-    try:
-        ## Estes módulos são gerados por outros scripts em tempo de execução,
-        ## não tem como manter o código em versionamento (ou tem?)
-        async def palavras_callback(
-            message: types.Message,
-            geracao: str,
-            gatilho: str,
-            respostas: object,
-        ) -> None:
-            """
-            Retorna palavra gerada associada a gatilho de uma geração 
-            específica  
-            """
-            try:
-                descriptions: list = ['botonaro', geracao, gatilho,
-                    dispatcher.config.personalidade, message.chat.type]
-                await message_callback(message, descriptions)
-                await command_callback(await message.reply(
-                    await respostas()), descriptions)
-            except Exception as e1:
-                logger.exception(e1)
-                await error_callback("Erro respondendo gatilho", message,
-                    e1, ['exception'] + descriptions)
-        geracoes: list = []
-        for g in range(1, 1):
-            try:
-                geracao[g]: object = import_module('geracao_' + str(g))
-                for n in range(1, geracao[g].gatilhos):
-                    try:
-                        dispatcher.register_message_handler(
-                            palavras_callback,
-                            filters.Regexp(
-                                r"\b({})\b".format(
-                                    "|".join(
-                                        await getattr(
-                                            geracao[g],
-                                            'gatilhos_' + str(n),
-                                        )()
-                                    )
-                                )
-                            ),
-                            filters.ChatTypeFilter([
-                                types.ChatType.GROUP,
-                                types.ChatType.SUPERGROUP,
-                            ]),
-                            geracao = str(g),
-                            gatilhos = str(n),
-                            respostas = getattr(
-                                geracao[g],
-                                "respostas_" + str(n),
-                            ),
-                        ) # register_message_handler
-                    except Exception as e2:
-                        logger.exception(e2)
-                ## FIXME Robô desgraçado não tá respondendo nada
-                @dispatcher.message_handler(
-                    filters.ChatTypeFilter(
-                        types.ChatType.PRIVATE,
-                        types.ChatType.GROUP,
-                        types.ChatType.SUPERGROUP,
-                    ),
-                    is_reply_to_id = dispatcher.bot.id,
-                )
-                async def reply_callback(message: types.Message) -> None:
-                    """Resposta específica para mensagens como respostas"""
-                    return await palavras_callback(
-                        message,
-                        geracao = str(g),
-                        gatilhos = "4",
-                        respostas = getattr(geracao[g], "respostas_" + "4"),
-                    )
-            except Exception as e1:
-                logger.exception(e1)
-            else:
-                logger.debug("Carregado geracao_" + str(g))
-    except Exception as e:
-        logger.error("Arquivos não foram gerados corretamente")
-        logger.exception(e)
     try:
         @dispatcher.message_handler(commands = ['start', 'help', 'info'])
         async def start_callback(message: types.Message) -> None:
