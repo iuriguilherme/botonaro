@@ -327,26 +327,6 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
                         gatilhos = "4",
                         respostas = getattr(geracao[g], "respostas_" + "4"),
                     )
-                ## FIXME: Robô desgraçado responde /start com busca_natural
-                ## (handler registrado no final deste arquivo)
-                ## Eu quase quebrei a mesa tentando descobrir porquê, esse
-                ## método aqui pelo jeito não faz bosta nenhuma
-                @dispatcher.message_handler(
-                    filters.ChatTypeFilter(
-                        types.ChatType.PRIVATE,
-                        types.ChatType.GROUP,
-                        types.ChatType.SUPERGROUP,
-                    ),
-                    commands = ['start'],
-                )
-                async def start_callback(message: types.Message) -> None:
-                    """Resposta específica para comando /start"""
-                    return await palavras_callback(
-                        message,
-                        geracao = str(g),
-                        gatilhos = "9",
-                        respostas = getattr(geracao[g], "respostas_" + "9"),
-                    )
             except Exception as e1:
                 logger.exception(e1)
             else:
@@ -355,6 +335,12 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
         logger.error("Arquivos não foram gerados corretamente")
         logger.exception(e)
     try:
+        @dispatcher.message_handler(commands = ['start', 'help', 'info'])
+        async def start_callback(message: types.Message) -> None:
+            """Resposta específica para comando /start"""
+            await message.reply("""Pode mandar qualquer termo ou frase que \
+eu vou tentar achar na internet o que é que a minha família disse sobre isso \
+aí ta ok""")
         async def busca_callback(
             message: types.Message,
             palavras: str,
@@ -368,7 +354,7 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
                     if hasattr(frase, 'link')
                 ]
                 if len(frases) < 1:
-                    raise ZeroResultsException()
+                    raise ZeroResultsException("Nenhum resultado")
                 else:
                     item: ItemMixin = await busca_item(random.choice(
                         frases).link)
@@ -422,45 +408,14 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
                     disable_web_page_preview = True,
                     allow_sending_without_reply = True,
                 )
-            except ZeroResultsException:
-                ## TODO: Mover para comandos onde está se aguardando
-                ## de fato uma resposta
-                return None
-                # ~ return await message.reply(
-                    # ~ text = """não me recordo de nada no tocante a essa \
-# ~ qüestão aí talquei""",
-                    # ~ disable_notification = True,
-                    # ~ allow_sending_without_reply = True,
-                # ~ )
             except Exception as e1:
                 logger.exception(e1)
-                return None
-        @dispatcher.message_handler(commands = ['sobre', 'm'])
-        async def busca_comando_callback(message: types.Message) -> None:
-            """Busca através dos argumentos do comando"""
-            descriptions: list = [
-                'botonaro',
-                'buscamemo',
-                'buscacomando',
-                dispatcher.config.personalidade,
-                message.chat.type,
-            ] # descriptions
-            await message_callback(message, descriptions)
-            try:
-                await command_callback(
-                    await busca_callback(
-                        message,
-                        message.get_args().split(' '),
-                        descriptions,
-                    ),
-                    descriptions,
-                ) # command_callback
-            except Exception as e1:
-                logger.exception(e1)
-                await error_callback("Erro buscando frase", message,
-                    e1, ['exception'] + descriptions)
-        async def busca_natural(message: types.Message) -> None:
-            """Busca através de palavras na mensagem"""
+                raise
+        async def busca_quieta(message: types.Message) -> None:
+            """
+            Busca através de palavras na mensagem, não responde se não achar 
+            nada
+            """
             try:
                 descriptions: list = [
                     'botonaro',
@@ -470,36 +425,105 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
                     message.chat.type,
                 ] # descriptions
                 await message_callback(message, descriptions)
-                await command_callback(
-                    await busca_callback(
+                try:
+                    command: types.Message = await busca_callback(
                         message,
                         [
                             termo \
                             for termo in \
                             message.text.split(' ') \
                             if termo not in \
-                            ['fala', 'sobre', '/start', '/sobre', '/m']
+                            ['fala', 'Fala', 'sobre', 'start',]
                         ],
                         descriptions,
-                    ),
-                    descriptions,
-                ) # command_callback
+                    ) # command
+                except ZeroResultsException:
+                    logger.debug("sem resultados")
+                else:
+                    await command_callback(command, descriptions)
             except Exception as e1:
                 logger.exception(e1)
                 await error_callback("Erro buscando frase", message,
                     e1, ['exception'] + descriptions)
+        async def busca_responde(message: types.Message) -> None:
+            """
+            Busca através de palavras na mensagem e informa se não achar nada
+            """
+            try:
+                descriptions: list = [
+                    'botonaro',
+                    'buscamemo',
+                    'buscanatural',
+                    dispatcher.config.personalidade,
+                    message.chat.type,
+                ] # descriptions
+                await message_callback(message, descriptions)
+                try:
+                    command: types.Message = await busca_callback(
+                        message,
+                        [
+                            termo \
+                            for termo in \
+                            message.text.split(' ') \
+                            if termo not in \
+                            ['fala', 'sobre', 'start',]
+                        ],
+                        descriptions,
+                    ) # command
+                except ZeroResultsException:
+                    command: types.Message = await message.reply(
+                        text = """não me recordo de nada no tocante a essa \
+qüestão aí talquei""",
+                        disable_notification = True,
+                        allow_sending_without_reply = True,
+                    ) # command
+                await command_callback(command, descriptions)
+            except Exception as e1:
+                logger.exception(e1)
+                await error_callback("Erro buscando frase", message,
+                    e1, ['exception'] + descriptions)
+        @dispatcher.message_handler(commands = ['sobre', 'm'])
+        async def busca_comando_callback(message: types.Message) -> None:
+            """Busca através dos argumentos do comando"""
+            try:
+                descriptions: list = [
+                    'botonaro',
+                    'buscamemo',
+                    'buscacomando',
+                    dispatcher.config.personalidade,
+                    message.chat.type,
+                ] # descriptions
+                await message_callback(message, descriptions)
+                try:
+                    command: types.Message = await busca_callback(
+                        message,
+                        message.get_args().split(' '),
+                        descriptions,
+                    ) # command
+                except ZeroResultsException:
+                    command: types.Message = await message.reply(
+                        text = """não me recordo de nada no tocante a essa \
+qüestão aí talquei""",
+                        disable_notification = True,
+                        allow_sending_without_reply = True,
+                    ) # command
+                await command_callback(command, descriptions)
+            except Exception as e1:
+                logger.exception(e1)
+                await error_callback("Erro buscando frase", message, e1, 
+                    ['exception'] + descriptions)
         @dispatcher.message_handler(
             filters.Regexp(r'\bfala sobre\b'),
             content_types = types.ContentTypes.TEXT,
         )
         async def busca_natural_callback(message: types.Message) -> None:
-            await busca_natural(message)
+            await busca_responde(message)
         @dispatcher.message_handler(
             filters.ChatTypeFilter(types.ChatType.PRIVATE),
             content_types = types.ContentTypes.TEXT,
         )
         async def busca_private_callback(message: types.Message) -> None:
-            await busca_natural(message)
+            await busca_responde(message)
         @dispatcher.message_handler(
             content_types = types.ContentTypes.TEXT,
             state = "*",
@@ -508,7 +532,7 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
             """Responde em uma chance aleatória"""
             try:
                 if await dice_low(int(os.environ.get("CHANCE", 30))):
-                    await busca_natural(message)
+                    await busca_quieta(message)
                 else:
                     logger.debug("sem resposta")
             except Exception as e1:
