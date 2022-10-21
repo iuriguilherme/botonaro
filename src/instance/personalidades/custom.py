@@ -423,12 +423,15 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
                     allow_sending_without_reply = True,
                 )
             except ZeroResultsException:
-                return await message.reply(
-                    text = """não me recordo de nada no tocante a essa \
-qüestão aí talquei""",
-                    disable_notification = True,
-                    allow_sending_without_reply = True,
-                )
+                ## TODO: Mover para comandos onde está se aguardando
+                ## de fato uma resposta
+                return None
+                # ~ return await message.reply(
+                    # ~ text = """não me recordo de nada no tocante a essa \
+# ~ qüestão aí talquei""",
+                    # ~ disable_notification = True,
+                    # ~ allow_sending_without_reply = True,
+                # ~ )
             except Exception as e1:
                 logger.exception(e1)
                 return None
