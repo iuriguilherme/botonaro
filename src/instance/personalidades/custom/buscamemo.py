@@ -5,6 +5,7 @@ Copyright 2022 Iuri Guilherme <https://iuri.neocities.org/>
 
 Creative Commons 4.0 Attribution Share Alike  
 """
+
 import logging
 logger = logging.getLogger(__name__)
 
@@ -17,21 +18,21 @@ import random
 import typing
 from aiogram import (
     Dispatcher,
-    filters,
+    # ~ filters,
     types,
 )
-from aiogram.utils import markdown
 ## FIXME engambelada enquanto ia.cecil não migra pra aiogram 3
 from aiogram.types import InputFile as URLInputFile
+from aiogram.utils import markdown
 from iacecil.controllers.aiogram_bot.callbacks import (
     command_callback,
     message_callback,
     error_callback,
 )
-from iacecil.controllers.util import (
-    dice_high,
-    dice_low,
-)
+# ~ from iacecil.controllers.util import (
+    # ~ dice_high,
+    # ~ dice_low,
+# ~ )
 
 try:
     locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
@@ -257,213 +258,146 @@ async def busca_frase(
         logger.exception(e)
         return []
 
-async def add_instance_handlers(dispatcher: Dispatcher) -> None:
-    """Registra handlers para aiogram.Dispatcher, lida com Telegram"""
+async def busca_callback(
+    message: types.Message,
+    palavras: str,
+    descriptions: list,
+) -> typing.Union[types.Message, None]:
+    """Busca frase de acordo com palavras chave"""
     try:
-        @dispatcher.message_handler(commands = ['start', 'help', 'info'])
-        async def start_callback(message: types.Message) -> None:
-            """Resposta específica para comando /start"""
-            await message.reply("""Pode mandar qualquer termo ou frase que \
-eu vou tentar achar na internet o que é que a minha família disse sobre isso \
-aí ta ok""")
-        async def busca_callback(
-            message: types.Message,
-            palavras: str,
-            descriptions: list,
-        ) -> typing.Union[types.Message, None]:
-            """Busca frase de acordo com palavras chave"""
-            try:
-                frases: list[ResultMixin] = [
-                    frase for frase in \
-                    await busca_frase(palavras) \
-                    if hasattr(frase, 'link')
-                ]
-                if len(frases) < 1:
-                    raise ZeroResultsException("Nenhum resultado")
-                else:
-                    item: ItemMixin = await busca_item(random.choice(
-                        frases).link)
-                    formato_data: str = "em %d/%m/%Y às %H:%M"
-                    if locale.getlocale()[0] == "pt_BR":
-                        formato_data: str = "%A, %d/%m/%Y às %H:%M"
-                    captions: list = [f"""Publicado por {item.metamemo} \
+        frases: list[ResultMixin] = [
+            frase for frase in \
+            await busca_frase(palavras) \
+            if hasattr(frase, 'link')
+        ]
+        if len(frases) < 1:
+            raise ZeroResultsException("Nenhum resultado")
+        else:
+            item: ItemMixin = await busca_item(random.choice(
+                frases).link)
+            formato_data: str = "em %d/%m/%Y às %H:%M"
+            if locale.getlocale()[0] == "pt_BR":
+                formato_data: str = "%A, %d/%m/%Y às %H:%M"
+            captions: list = [f"""Publicado por {item.metamemo} \
 {item.data.strftime(formato_data)}."""]
-                    if int(item.apoios) + int(item.comentarios) > 0:
-                        captions.append(f"{item.apoios} " + u"\U0001f44d" + \
-                            f"{item.comentarios} " + u"\U0001f4ac")
-                    if item.link not in [None, '', ' ']:
-                        captions.append(f"Link: {item.link}")
-                    caption: str = markdown.spoiler("\n".join(captions))
-                    texto: str = "\n".join([markdown.escape_md(item.texto),
-                        "", caption])
-                    if len(texto) < 24+1e3:
-                        caption: str = texto
-                if item.video is not None:
-                    try:
-                        return await message.reply_video(
-                            video = URLInputFile.from_url(item.video),
-                            caption = caption,
-                            parse_mode = "MarkdownV2",
-                            disable_notification = True,
-                            # ~ disable_web_page_preview = True,
-                            allow_sending_without_reply = True,
-                        )
-                    except Exception as e2:
-                        logger.exception(e2)
-                        await error_callback("Erro tentando mandar vídeo",
-                            message, e2, ['exception'] + descriptions)
-                elif item.imagem is not None:
-                    try:
-                        return await message.reply_photo(
-                            photo = URLInputFile.from_url(item.imagem),
-                            caption = caption,
-                            parse_mode = "MarkdownV2",
-                            disable_notification = True,
-                            # ~ disable_web_page_preview = True,
-                            allow_sending_without_reply = True,
-                        )
-                    except Exception as e2:
-                        logger.exception(e2)
-                        await error_callback("Erro tentando mandar imagem",
-                            message, e2, ['exception'] + descriptions)
-                return await message.reply(
-                    text = texto,
+            if int(item.apoios) + int(item.comentarios) > 0:
+                captions.append(f"{item.apoios} " + u"\U0001f44d" + \
+                    f"{item.comentarios} " + u"\U0001f4ac")
+            if item.link not in [None, '', ' ']:
+                captions.append(f"Link: {item.link}")
+            caption: str = markdown.spoiler("\n".join(captions))
+            texto: str = "\n".join([markdown.escape_md(item.texto),
+                "", caption])
+            if len(texto) < 24+1e3:
+                caption: str = texto
+        if item.video is not None:
+            try:
+                return await message.reply_video(
+                    video = URLInputFile.from_url(item.video),
+                    caption = caption,
                     parse_mode = "MarkdownV2",
                     disable_notification = True,
-                    disable_web_page_preview = True,
+                    # ~ disable_web_page_preview = True,
                     allow_sending_without_reply = True,
                 )
-            except Exception as e1:
-                logger.exception(e1)
-                raise
-        async def busca_quieta(message: types.Message) -> None:
-            """
-            Busca através de palavras na mensagem, não responde se não achar 
-            nada
-            """
+            except Exception as e2:
+                logger.exception(e2)
+                await error_callback("Erro tentando mandar vídeo",
+                    message, e2, ['exception'] + descriptions)
+        elif item.imagem is not None:
             try:
-                descriptions: list = [
-                    'botonaro',
-                    'buscamemo',
-                    'buscanatural',
-                    dispatcher.config.personalidade,
-                    message.chat.type,
-                ] # descriptions
-                await message_callback(message, descriptions)
-                try:
-                    command: types.Message = await busca_callback(
-                        message,
-                        [
-                            termo \
-                            for termo in \
-                            message.text.split(' ') \
-                            if termo not in \
-                            ["fala", "Fala", "sobre", "start"]
-                        ],
-                        descriptions,
-                    ) # command
-                except ZeroResultsException:
-                    logger.debug("sem resultados")
-                else:
-                    await command_callback(command, descriptions)
-            except Exception as e1:
-                logger.exception(e1)
-                await error_callback("Erro buscando frase", message,
-                    e1, ['exception'] + descriptions)
-        async def busca_responde(message: types.Message) -> None:
-            """
-            Busca através de palavras na mensagem e informa se não achar nada
-            """
-            try:
-                descriptions: list = [
-                    'botonaro',
-                    'buscamemo',
-                    'buscanatural',
-                    dispatcher.config.personalidade,
-                    message.chat.type,
-                ] # descriptions
-                await message_callback(message, descriptions)
-                try:
-                    command: types.Message = await busca_callback(
-                        message,
-                        [
-                            termo \
-                            for termo in \
-                            message.text.split(' ') \
-                            if termo not in \
-                            ["fala", "Fala", "sobre", "start"]
-                        ],
-                        descriptions,
-                    ) # command
-                except ZeroResultsException:
-                    command: types.Message = await message.reply(
-                        text = """não me recordo de nada no tocante a essa \
+                return await message.reply_photo(
+                    photo = URLInputFile.from_url(item.imagem),
+                    caption = caption,
+                    parse_mode = "MarkdownV2",
+                    disable_notification = True,
+                    # ~ disable_web_page_preview = True,
+                    allow_sending_without_reply = True,
+                )
+            except Exception as e2:
+                logger.exception(e2)
+                await error_callback("Erro tentando mandar imagem",
+                    message, e2, ['exception'] + descriptions)
+        return await message.reply(
+            text = texto,
+            parse_mode = "MarkdownV2",
+            disable_notification = True,
+            disable_web_page_preview = True,
+            allow_sending_without_reply = True,
+        )
+    except Exception as e1:
+        logger.exception(e1)
+        raise
+
+async def busca_quieta(message: types.Message) -> None:
+    """
+    Busca através de palavras na mensagem, não responde se não achar 
+    nada
+    """
+    descriptions: list = [
+        'botonaro',
+        'buscamemo',
+        'buscanatural',
+        Dispatcher.get_current().config.personalidade,
+        message.chat.type,
+    ] # descriptions
+    try:
+        await message_callback(message, descriptions)
+        try:
+            command: types.Message = await busca_callback(
+                message,
+                [
+                    termo \
+                    for termo in \
+                    message.text.split(' ') \
+                    if termo not in \
+                    ["fala", "Fala", "sobre", "start"]
+                ],
+                descriptions,
+            ) # command
+        except ZeroResultsException:
+            logger.debug("sem resultados")
+        else:
+            await command_callback(command, descriptions)
+    except Exception as e1:
+        logger.exception(e1)
+        await error_callback("Erro buscando frase", message,
+            e1, ['exception'] + descriptions)
+
+async def busca_responde(message: types.Message) -> None:
+    """
+    Busca através de palavras na mensagem e informa se não achar nada
+    """
+    descriptions: list = [
+        'botonaro',
+        'buscamemo',
+        'buscanatural',
+        Dispatcher.get_current().config.personalidade,
+        message.chat.type,
+    ] # descriptions
+    try:
+        await message_callback(message, descriptions)
+        try:
+            command: types.Message = await busca_callback(
+                message,
+                [
+                    termo \
+                    for termo in \
+                    message.text.split(' ') \
+                    if termo not in \
+                    ["fala", "Fala", "sobre", "start"]
+                ],
+                descriptions,
+            ) # command
+        except ZeroResultsException:
+            command: types.Message = await message.reply(
+                text = """não me recordo de nada no tocante a essa \
 qüestão aí talquei""",
-                        disable_notification = True,
-                        allow_sending_without_reply = True,
-                    ) # command
-                await command_callback(command, descriptions)
-            except Exception as e1:
-                logger.exception(e1)
-                await error_callback("Erro buscando frase", message,
-                    e1, ['exception'] + descriptions)
-        @dispatcher.message_handler(commands = ['sobre', 'm'])
-        async def busca_comando_callback(message: types.Message) -> None:
-            """Busca através dos argumentos do comando"""
-            try:
-                descriptions: list = [
-                    'botonaro',
-                    'buscamemo',
-                    'buscacomando',
-                    dispatcher.config.personalidade,
-                    message.chat.type,
-                ] # descriptions
-                await message_callback(message, descriptions)
-                try:
-                    command: types.Message = await busca_callback(
-                        message,
-                        message.get_args().split(' '),
-                        descriptions,
-                    ) # command
-                except ZeroResultsException:
-                    command: types.Message = await message.reply(
-                        text = """não me recordo de nada no tocante a essa \
-qüestão aí talquei""",
-                        disable_notification = True,
-                        allow_sending_without_reply = True,
-                    ) # command
-                await command_callback(command, descriptions)
-            except Exception as e1:
-                logger.exception(e1)
-                await error_callback("Erro buscando frase", message, e1, 
-                    ['exception'] + descriptions)
-        @dispatcher.message_handler(
-            filters.Regexp(r'\bfala sobre\b'),
-            content_types = types.ContentTypes.TEXT,
-        )
-        async def busca_natural_callback(message: types.Message) -> None:
-            await busca_responde(message)
-        @dispatcher.message_handler(
-            filters.ChatTypeFilter(types.ChatType.PRIVATE),
-            content_types = types.ContentTypes.TEXT,
-        )
-        async def busca_private_callback(message: types.Message) -> None:
-            await busca_responde(message)
-        @dispatcher.message_handler(
-            content_types = types.ContentTypes.TEXT,
-            state = "*",
-        )
-        async def chance_busca_callback(message: types.Message) -> None:
-            """Responde em uma chance aleatória"""
-            try:
-                if await dice_low(int(os.environ.get("CHANCE", 30))):
-                    await busca_quieta(message)
-                else:
-                    logger.debug("sem resposta")
-            except Exception as e1:
-                logger.exception(e1)
-                await error_callback("Erro buscando frase", message,
-                    e1, ['exception'])
-    except Exception as e:
-        logger.error("Não consegui registrar os handlers de busca")
-        logger.exception(e)
+                disable_notification = True,
+                allow_sending_without_reply = True,
+            ) # command
+        await command_callback(command, descriptions)
+    except Exception as e1:
+        logger.exception(e1)
+        await error_callback("Erro buscando frase", message,
+            e1, ['exception'] + descriptions)
