@@ -54,6 +54,10 @@ Roadmap
 
 ### [Pre-alpha v0.2](https://github.com/iuriguilherme/botonaro/releases/tag/pre-alpha)
 
+Protótipo para apresentação para o Bolsodata  
+
+### [Alpha v0.3](https://github.com/iuriguilherme/botonaro/releases/tag/alpha)
+
 Chatbot de telegram, extensão de personalidade de 
 [ia.cecil](https://github.com/iuriguilherme/iacecil)  
 
@@ -65,14 +69,11 @@ Chatbot de telegram, extensão de personalidade de
 1. Usa o texto da mensagem para buscar na fonte de frases
 1. Responde a mensagem com a frase, incluindo a referência
 
-### [Alpha v0.3](https://github.com/iuriguilherme/botonaro/releases/tag/v0.3.0)
+### [Alpha v0.4](https://github.com/iuriguilherme/botonaro/releases/tag/v0.4.0)
 
-_(em desenvolvimento)_
+_(em desenvolvimento)_  
 
-Chatbots de telegram  
-
-1. Extendem as personalidades de 
-[ia.cecil](https://github.com/iuriguilherme/iacecil)  
+1. Funcionalidadas herdadas da versão 0.3
 1. Registra reações a mensagens
 1. Interface web com gráficos e estatísticas de reações
 
