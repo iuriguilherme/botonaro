@@ -1,2 +1,1 @@
 bots: list = ['botonaro']
-

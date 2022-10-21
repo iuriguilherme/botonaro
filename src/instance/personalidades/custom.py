@@ -6,6 +6,7 @@ logger = logging.getLogger(__name__)
 import aiohttp
 import bs4
 import datetime
+import locale
 import os
 import random
 import typing
@@ -14,6 +15,8 @@ from aiogram import (
     filters,
     types,
 )
+from aiogram.utils import markdown
+from aiogram.types import InputFile as URLInputFile
 from importlib import import_module
 from iacecil.controllers.aiogram_bot.callbacks import (
     command_callback,
@@ -25,11 +28,38 @@ from iacecil.controllers.util import (
     dice_low,
 )
 
+try:
+    locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
+except Exception as e:
+    logger.debug("Locale brasileira não instalada no sistema")
+    logger.exception(e)
+
+class ZeroResultsException(Exception):
+    pass
+
 class ItemMixin(object):
     """Modelo para item individual de busca"""
-    texto: str
+    link: typing.Union[str, None] = None
+    fonte: str = "Internet"
+    metamemo: str = "Alguém"
+    texto: str = "Nada"
+    video: typing.Union[str, None] = None
+    imagem: typing.Union[str, None] = None
+    apoios: str = "0"
+    comentarios: str = "0"
+    data: datetime.datetime = datetime.datetime.min
     def __repr__(self):
-        return f"<ItemMixin(texto: {self.texto}>"
+        return f"""<ItemMixin(\
+link: {str(self.link)}, \
+fonte: {self.fonte}, \
+metamemo: {self.metamemo}, \
+texto: {self.texto}, \
+video: {str(self.video)}, \
+imagem: {str(self.imagem)}, \
+apoios: {self.apoios}, \
+comentarios: {self.comentarios}, \
+data: {str(data)}\
+>"""
 
 class ResultMixin(object):
     """Modelo para resultado da busca"""
@@ -86,8 +116,60 @@ async def parse_item(rows: bs4.element.ResultSet) -> ItemMixin:
     """Parse HTML into Python Object"""
     try:
         item: ItemMixin = ItemMixin()
-        item.texto: str = rows[1].find('p').text
-        # ~ logger.debug(item)
+        try:
+            item.link: str = rows[0].find('a', {'title': "Link original"}
+                ).get('href')
+        except Exception as e:
+            logger.debug("Item provavelmente não tem link")
+            logger.exception(e)
+        try:
+            item.fonte: str = rows[0].find('span').get('class')[0].split('-'
+                )[1].strip('1').capitalize()
+        except Exception as e:
+            logger.debug("Item provavelmente não tem fonte")
+            logger.exception(e)
+        try:
+            item.metamemo: str = rows[0].find('b').text
+        except Exception as e:
+            logger.debug("Item provavelmente não tem metamemo")
+            logger.exception(e)
+        try:
+            item.texto: str = rows[1].find('p').text
+        except Exception as e:
+            logger.debug("Item provavelmente não tem texto")
+            logger.exception(e)
+        try:
+            item.video: str = rows[2].find('video', 'metavideo').find('source'
+                ).get('src')
+        except Exception as e:
+            logger.debug("Item provavelmente não tem vídeo")
+            logger.exception(e)
+        try:
+            item.imagem: str = rows[2].find('img').get('src')
+        except Exception as e:
+            logger.debug("Item provavelmente não tem imagem")
+            logger.exception(e)
+        try:
+            item.apoios: str = rows[3].find_all('b')[1].text
+        except Exception as e:
+            logger.debug("Item provavelmente não tem curtidas")
+            logger.exception(e)
+        try:
+            item.comentarios: str = rows[3].find_all('b')[2].text
+        except Exception as e:
+            logger.debug("Item provavelmente não tem comentários")
+            logger.exception(e)
+        try:
+            item.data: datetime.datetime = datetime.datetime.strptime(
+                " ".join([
+                    b.text.strip('\xa0 ') \
+                    for b in \
+                    rows[3].find('div', 'data-tempo').find_all('b')
+                ]), "%H:%M %d/%m/%Y"
+            ) # item.data
+        except Exception as e:
+            logger.debug("Item provavelmente não tem data")
+            logger.exception(e)
         return item
     except Exception as e:
         logger.exception(e)
@@ -131,6 +213,7 @@ async def busca_item(link: str) -> ItemMixin:
     try:
         fonte_url: str = os.environ.get("BASE_URL", "http://example.com")
         url: str = f"{fonte_url}/" + f"{link}"
+        logger.debug(f"Buscando item em {url}")
         soup: BeautifulSoup = await bytes_to_soup(await html_to_bytes(url))
         results: bs4.element.ResultSet = soup.find('div', 'memoitem-container',
             ).find_all('div', 'row')
@@ -160,21 +243,10 @@ async def busca_frase(
             + f"&end_date={end_date}"
         logger.debug(f"Buscando em {url}")
         soup: BeautifulSoup = await bytes_to_soup(await html_to_bytes(url))
-        try:
-            results: bs4.element.ResultSet = soup.find('div', 'search-results')
-            results: bs4.element.ResultSet = results.find_all(
-                'div',
-                'result-item',
-            )
-            retornos: list = [await parse_result(result) for result in results]
-            logger.debug(f"Encontrados {len(retornos)} resultados")
-            retornos[0]
-        except IndexError as e1:
-            logger.exception(e1)
-            retorno: ResultMixin = ResultMixin()
-            retorno.titulo: str = """não me recordo de nada no tocante a essa \
-qüestão aí talquei"""
-            retornos: list = [retorno]
+        results: bs4.element.ResultSet = soup.find('div', 'search-results')
+        results: bs4.element.ResultSet = results.find_all('div', 'result-item')
+        retornos: list = [await parse_result(result) for result in results]
+        logger.debug(f"Encontrados {len(retornos)} resultados")
         return retornos
     except Exception as e:
         logger.exception(e)
@@ -238,6 +310,7 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
                         ) # register_message_handler
                     except Exception as e2:
                         logger.exception(e2)
+                ## FIXME Robô desgraçado não tá respondendo nada
                 @dispatcher.message_handler(
                     filters.ChatTypeFilter(
                         types.ChatType.PRIVATE,
@@ -282,6 +355,83 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
         logger.error("Arquivos não foram gerados corretamente")
         logger.exception(e)
     try:
+        async def busca_callback(
+            message: types.Message,
+            palavras: str,
+            descriptions: list,
+        ) -> typing.Union[types.Message, None]:
+            """Busca frase de acordo com palavras chave"""
+            try:
+                frases: list[ResultMixin] = [
+                    frase for frase in \
+                    await busca_frase(palavras) \
+                    if hasattr(frase, 'link')
+                ]
+                if len(frases) < 1:
+                    raise ZeroResultsException()
+                else:
+                    item: ItemMixin = await busca_item(random.choice(
+                        frases).link)
+                    formato_data: str = "em %d/%m/%Y às %H:%M"
+                    if locale.getlocale()[0] == "pt_BR":
+                        formato_data: str = "%A, %d/%m/%Y às %H:%M"
+                    captions: list = [f"""Publicado por {item.metamemo} \
+{item.data.strftime(formato_data)}."""]
+                    if int(item.apoios) + int(item.comentarios) > 0:
+                        captions.append(f"{item.apoios} " + u"\U0001f44d" + \
+                            f"{item.comentarios} " + u"\U0001f4ac")
+                    if item.link not in [None, '', ' ']:
+                        captions.append(f"Link: {item.link}")
+                    caption: str = markdown.spoiler("\n".join(captions))
+                    texto: str = "\n".join([markdown.escape_md(item.texto),
+                        "", caption])
+                    if len(texto) < 24+1e3:
+                        caption: str = texto
+                if item.video is not None:
+                    try:
+                        return await message.reply_video(
+                            video = URLInputFile.from_url(item.video),
+                            caption = caption,
+                            parse_mode = "MarkdownV2",
+                            disable_notification = True,
+                            # ~ disable_web_page_preview = True,
+                            allow_sending_without_reply = True,
+                        )
+                    except Exception as e2:
+                        logger.exception(e2)
+                        await error_callback("Erro tentando mandar vídeo",
+                            message, e2, ['exception'] + descriptions)
+                elif item.imagem is not None:
+                    try:
+                        return await message.reply_photo(
+                            photo = URLInputFile.from_url(item.imagem),
+                            caption = caption,
+                            parse_mode = "MarkdownV2",
+                            disable_notification = True,
+                            # ~ disable_web_page_preview = True,
+                            allow_sending_without_reply = True,
+                        )
+                    except Exception as e2:
+                        logger.exception(e2)
+                        await error_callback("Erro tentando mandar imagem",
+                            message, e2, ['exception'] + descriptions)
+                return await message.reply(
+                    text = texto,
+                    parse_mode = "MarkdownV2",
+                    disable_notification = True,
+                    disable_web_page_preview = True,
+                    allow_sending_without_reply = True,
+                )
+            except ZeroResultsException:
+                return await message.reply(
+                    text = """não me recordo de nada no tocante a essa \
+qüestão aí talquei""",
+                    disable_notification = True,
+                    allow_sending_without_reply = True,
+                )
+            except Exception as e1:
+                logger.exception(e1)
+                return None
         @dispatcher.message_handler(commands = ['sobre', 'm'])
         async def busca_comando_callback(message: types.Message) -> None:
             """Busca através dos argumentos do comando"""
@@ -295,13 +445,11 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
             await message_callback(message, descriptions)
             try:
                 await command_callback(
-                    await message.reply(
-                        text = (await busca_item(random.choice([
-                            frase for frase in \
-                            await busca_frase(message.get_args().split(' ')) \
-                            if hasattr(frase, 'link')
-                        ]).link)).texto,
-                    ), # reply
+                    await busca_callback(
+                        message,
+                        message.get_args().split(' '),
+                        descriptions,
+                    ),
                     descriptions,
                 ) # command_callback
             except Exception as e1:
@@ -320,18 +468,17 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
                 ] # descriptions
                 await message_callback(message, descriptions)
                 await command_callback(
-                    await message.reply(
-                        text = (await busca_item(random.choice([
-                            frase for frase in \
-                            await busca_frase([
-                                termo \
-                                for termo in \
-                                message.text.split(' ') \
-                                if termo not in \
-                                ['fala', 'sobre']
-                            ]) if hasattr(frase, 'link')
-                        ]).link)).texto, # text
-                    ), # reply
+                    await busca_callback(
+                        message,
+                        [
+                            termo \
+                            for termo in \
+                            message.text.split(' ') \
+                            if termo not in \
+                            ['fala', 'sobre', '/start', '/sobre', '/m']
+                        ],
+                        descriptions,
+                    ),
                     descriptions,
                 ) # command_callback
             except Exception as e1:
