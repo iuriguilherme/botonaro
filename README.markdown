@@ -49,6 +49,33 @@ CHANCE = 30
 
 Adaptar **SOURCES_BUSCA** para o tipo de busca pertinente.  
 
+Roadmap
+---
+
+### [Pre-alpha v0.2](https://github.com/iuriguilherme/botonaro/releases/tag/pre-alpha)
+
+Chatbot de telegram, extensão de personalidade de 
+[ia.cecil](https://github.com/iuriguilherme/iacecil)  
+
+1. Lê quatro tipos de mensagem:
+  1. Aquelas que contém o gatilho "fala sobre"
+  1. Aquelas que começam com o comando "/sobre"
+  1. Todas aquelas que foram enviadas para um chat particular
+  1. 1:30 chance das que forem enviadas para um grupo
+1. Usa o texto da mensagem para buscar na fonte de frases
+1. Responde a mensagem com a frase, incluindo a referência
+
+### [Alpha v0.3](https://github.com/iuriguilherme/botonaro/releases/tag/v0.3.0)
+
+_(em desenvolvimento)_
+
+Chatbots de telegram  
+
+1. Extendem as personalidades de 
+[ia.cecil](https://github.com/iuriguilherme/iacecil)  
+1. Registra reações a mensagens
+1. Interface web com gráficos e estatísticas de reações
+
 Licença
 ---
 
