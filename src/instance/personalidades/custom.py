@@ -433,7 +433,7 @@ aí ta ok""")
                             for termo in \
                             message.text.split(' ') \
                             if termo not in \
-                            ['fala', 'Fala', 'sobre', 'start',]
+                            ["fala", "Fala", "sobre", "start"]
                         ],
                         descriptions,
                     ) # command
@@ -466,7 +466,7 @@ aí ta ok""")
                             for termo in \
                             message.text.split(' ') \
                             if termo not in \
-                            ['fala', 'sobre', 'start',]
+                            ["fala", "Fala", "sobre", "start"]
                         ],
                         descriptions,
                     ) # command
