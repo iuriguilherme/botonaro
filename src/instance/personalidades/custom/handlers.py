@@ -32,10 +32,45 @@ from .buscamemo import (
     busca_responde,
     ZeroResultsException,
 )
+from .natural import concordance_all
 
 async def add_instance_handlers(dispatcher: Dispatcher) -> None:
     """Registra handlers para aiogram.Dispatcher, lida com Telegram"""
     try:
+        @dispatcher.message_handler(
+            filters.IDFilter(
+                user_id = dispatcher.config.telegram['users']['alpha'] + \
+                dispatcher.config.telegram['users']['beta'],
+            ),
+            commands = ['ncon', 'nconcordance'],
+        )
+        async def nconcordance_callback(message: types.Message) -> None:
+            """NLTK text.concordance()"""
+            descriptions: list = [
+                'botonaro',
+                'natural',
+                'concordance',
+                dispatcher.config.personalidade,
+                message.chat.type,
+            ] # descriptions
+            await message_callback(message, descriptions)
+            reply: str = "Não consegui :("
+            try:
+                if len(message.get_args()) > 0:
+                    concordances: str = (await concordance_all(
+                        message.get_args()))
+                    if len(concordances) > 0:
+                        reply: str = concordances
+                    else:
+                        reply: str = "Nenhuma concordância"
+                else:
+                    reply: str = "Que palavra?"
+            except Exception as e1:
+                logger.exception(e1)
+                await error_callback("Erro buscando termos", message, e1, 
+                    ['exception'] + descriptions)
+            command: types.Message = await message.reply(reply)
+            await command_callback(command, descriptions)
         @dispatcher.message_handler(commands = ['start', 'help', 'info'])
         async def start_callback(message: types.Message) -> None:
             """Resposta específica para comando /start"""

@@ -292,7 +292,7 @@ async def busca_callback(
                 caption: str = texto
         if item.video is not None:
             try:
-                return await message.reply_video(
+                command: types.Message = await message.reply_video(
                     video = URLInputFile.from_url(item.video),
                     caption = caption,
                     parse_mode = "MarkdownV2",
@@ -300,13 +300,22 @@ async def busca_callback(
                     # ~ disable_web_page_preview = True,
                     allow_sending_without_reply = True,
                 )
+                try:
+                    logger.debug(command.get('ok'))
+                except Exception as e3:
+                    logger.exception(e3)
+                try:
+                    logger.debug(getattr(command, 'ok'))
+                except Exception as e3:
+                    logger.exception(e3)
+                return command
             except Exception as e2:
                 logger.exception(e2)
                 await error_callback("Erro tentando mandar vídeo",
                     message, e2, ['exception'] + descriptions)
         elif item.imagem is not None:
             try:
-                return await message.reply_photo(
+                command: types.Message = await message.reply_photo(
                     photo = URLInputFile.from_url(item.imagem),
                     caption = caption,
                     parse_mode = "MarkdownV2",
@@ -314,17 +323,35 @@ async def busca_callback(
                     # ~ disable_web_page_preview = True,
                     allow_sending_without_reply = True,
                 )
+                try:
+                    logger.debug(command.get('ok'))
+                except Exception as e3:
+                    logger.exception(e3)
+                try:
+                    logger.debug(getattr(command, 'ok'))
+                except Exception as e3:
+                    logger.exception(e3)
+                return command
             except Exception as e2:
                 logger.exception(e2)
                 await error_callback("Erro tentando mandar imagem",
                     message, e2, ['exception'] + descriptions)
-        return await message.reply(
+        command: types.Message = await message.reply(
             text = texto,
             parse_mode = "MarkdownV2",
             disable_notification = True,
             disable_web_page_preview = True,
             allow_sending_without_reply = True,
         )
+        try:
+            logger.debug(command.get('ok'))
+        except Exception as e2:
+            logger.exception(e2)
+        try:
+            logger.debug(getattr(command, 'ok'))
+        except Exception as e2:
+            logger.exception(e2)
+        return command
     except Exception as e1:
         logger.exception(e1)
         raise
