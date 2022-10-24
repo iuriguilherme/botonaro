@@ -9,6 +9,7 @@ Creative Commons 4.0 Attribution Share Alike
 import logging
 logger = logging.getLogger(__name__)
 
+import io
 import os
 import random
 import typing
@@ -26,17 +27,58 @@ from iacecil.controllers.util import (
     dice_high,
     dice_low,
 )
+from plugins.natural import dispersion_plot_1
 from .buscamemo import (
     busca_callback,
     busca_quieta,
     busca_responde,
     ZeroResultsException,
 )
-from .natural import concordance_all
+from .natural import (
+    context_all,
+    concordance_all,
+    count_all,
+    # ~ dispersion_all,
+    generate_all,
+    get_all_telegram_texts,
+    similar_all,
+)
 
 async def add_instance_handlers(dispatcher: Dispatcher) -> None:
     """Registra handlers para aiogram.Dispatcher, lida com Telegram"""
     try:
+        @dispatcher.message_handler(
+            filters.IDFilter(
+                user_id = dispatcher.config.telegram['users']['alpha'] + \
+                dispatcher.config.telegram['users']['beta'],
+            ),
+            commands = ['ngen', 'ngenerate'],
+        )
+        async def ngenerate_callback(message: types.Message) -> None:
+            """NLTK text.generate()"""
+            descriptions: list = [
+                'botonaro',
+                'natural',
+                'generate',
+                dispatcher.config.personalidade,
+                message.chat.type,
+            ] # descriptions
+            await message_callback(message, descriptions)
+            reply: str = "Não consegui :("
+            try:
+                generated: str = (await generate_all(
+                    message.get_args()))
+                if len(generated) > 0:
+                    reply: str = generated
+                else:
+                    reply: str = "Nada gerado"
+            except Exception as e1:
+                logger.exception(e1)
+                reply: str = "Erro buscando termos"
+                await error_callback(reply, message, e1,
+                    ['exception'] + descriptions)
+            command: types.Message = await message.reply(reply)
+            await command_callback(command, descriptions)
         @dispatcher.message_handler(
             filters.IDFilter(
                 user_id = dispatcher.config.telegram['users']['alpha'] + \
@@ -67,9 +109,169 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
                     reply: str = "Que palavra?"
             except Exception as e1:
                 logger.exception(e1)
-                await error_callback("Erro buscando termos", message, e1, 
+                reply: str = "Erro buscando termos"
+                await error_callback(reply, message, e1,
                     ['exception'] + descriptions)
             command: types.Message = await message.reply(reply)
+            await command_callback(command, descriptions)
+        @dispatcher.message_handler(
+            filters.IDFilter(
+                user_id = dispatcher.config.telegram['users']['alpha'] + \
+                dispatcher.config.telegram['users']['beta'],
+            ),
+            commands = ['ncom', 'ncontext'],
+        )
+        async def ncontext_callback(message: types.Message) -> None:
+            """NLTK text.common_contexts()"""
+            descriptions: list = [
+                'botonaro',
+                'natural',
+                'context',
+                dispatcher.config.personalidade,
+                message.chat.type,
+            ] # descriptions
+            await message_callback(message, descriptions)
+            reply: str = "Não consegui :("
+            try:
+                if len(message.get_args()) > 0:
+                    contexts: str = (await context_all(message.get_args()))
+                    if len(contexts) > 0:
+                        reply: str = contexts
+                    else:
+                        reply: str = "Nenhum contexto comum"
+                else:
+                    reply: str = "Que palavra?"
+            except Exception as e1:
+                logger.exception(e1)
+                reply: str = "Erro buscando termos"
+                await error_callback(reply, message, e1,
+                    ['exception'] + descriptions)
+            command: types.Message = await message.reply(reply)
+            await command_callback(command, descriptions)
+        @dispatcher.message_handler(
+            filters.IDFilter(
+                user_id = dispatcher.config.telegram['users']['alpha'] + \
+                dispatcher.config.telegram['users']['beta'],
+            ),
+            commands = ['nsim', 'nsimilar'],
+        )
+        async def nsimilar_callback(message: types.Message) -> None:
+            """NLTK text.similar()"""
+            descriptions: list = [
+                'botonaro',
+                'natural',
+                'similar',
+                dispatcher.config.personalidade,
+                message.chat.type,
+            ] # descriptions
+            await message_callback(message, descriptions)
+            reply: str = "Não consegui :("
+            try:
+                if len(message.get_args()) > 0:
+                    similars: str = (await similar_all(
+                        message.get_args()))
+                    if len(similars) > 0:
+                        reply: str = similars
+                    else:
+                        reply: str = "Nenhuma termo similar"
+                else:
+                    reply: str = "Que palavra?"
+            except Exception as e1:
+                logger.exception(e1)
+                reply: str = "Erro buscando termos"
+                await error_callback(reply, message, e1,
+                    ['exception'] + descriptions)
+            command: types.Message = await message.reply(reply)
+            await command_callback(command, descriptions)
+        @dispatcher.message_handler(
+            filters.IDFilter(
+                user_id = dispatcher.config.telegram['users']['alpha'] + \
+                dispatcher.config.telegram['users']['beta'],
+            ),
+            commands = ['ncon', 'ncount'],
+        )
+        async def ncount_callback(message: types.Message) -> None:
+            """NLTK text.concordance()"""
+            descriptions: list = [
+                'botonaro',
+                'natural',
+                'count',
+                dispatcher.config.personalidade,
+                message.chat.type,
+            ] # descriptions
+            await message_callback(message, descriptions)
+            reply: str = "Não consegui :("
+            try:
+                if len(message.get_args()) > 0:
+                    counted: str = (await count_all(
+                        message.get_args()))
+                    reply: str = f"""{message.get_args()} já foi dito \
+{counted.get('count')} vezes, sendo {counted.get('percentage'):.2f}% do que \
+já foi dito."""
+                else:
+                    reply: str = "Que palavra?"
+            except Exception as e1:
+                logger.exception(e1)
+                reply: str = "Erro buscando termos"
+                await error_callback(reply, message, e1,
+                    ['exception'] + descriptions)
+            command: types.Message = await message.reply(reply)
+            await command_callback(command, descriptions)
+        @dispatcher.message_handler(
+            filters.IDFilter(
+                user_id = dispatcher.config.telegram['users']['alpha'] + \
+                dispatcher.config.telegram['users']['beta'],
+            ),
+            commands = ['nlex', 'ndispersion'],
+        )
+        async def ndispersion_callback(message: types.Message) -> None:
+            """NLTK lexycal dispersion plot"""
+            descriptions: list = [
+                'botonaro',
+                'natural',
+                'lexical',
+                dispatcher.config.personalidade,
+                message.chat.type,
+            ] # descriptions
+            command: typing.Union[types.Message, None] = None
+            reply: str = "Não consegui :("
+            try:
+                await message_callback(message, descriptions)
+                if len(message.get_args()) > 0:
+                    words: list = message.get_args().split(' ')
+                    plot: io.BytesIO = io.BytesIO()
+                    try:
+                        plot.close()
+                        texts: list[str] = [
+                            text for texts in \
+                            await get_all_telegram_texts() \
+                            for text in texts
+                        ]
+                        plot: io.BytesIO = await dispersion_plot_1(texts,
+                            words)
+                        command: types.Message = await message.reply_photo(
+                            plot.getbuffer(),
+                            caption = f"""Dispersão léxica para os termos: \
+{' '.join(words)}""",
+                        )
+                    except Exception as e2:
+                        await erro_callback(
+                            "Error trying to send graphic",
+                            message,
+                            e2,
+                            ['exception'] + descriptions,
+                        )
+                    finally:
+                        plot.close()
+                else:
+                    reply: str = "Que palavra?"
+            except Exception as e1:
+                logger.exception(e1)
+                reply: str = "Erro buscando termos"
+                await error_callback(reply, message, e1,
+                    ['exception'] + descriptions)
+            if command is None:
+                command: types.Message = await message.reply(reply)
             await command_callback(command, descriptions)
         @dispatcher.message_handler(commands = ['start', 'help', 'info'])
         async def start_callback(message: types.Message) -> None:
