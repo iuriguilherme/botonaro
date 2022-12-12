@@ -38,15 +38,43 @@ from .natural import (
     context_all,
     concordance_all,
     count_all,
-    # ~ dispersion_all,
     generate_all,
     get_all_telegram_texts,
     similar_all,
+    statistics_all,
 )
 
 async def add_instance_handlers(dispatcher: Dispatcher) -> None:
     """Registra handlers para aiogram.Dispatcher, lida com Telegram"""
     try:
+        @dispatcher.message_handler(
+            filters.IDFilter(
+                user_id = dispatcher.config.telegram['users']['alpha'] + \
+                dispatcher.config.telegram['users']['beta'],
+            ),
+            commands = ['nstats', 'nstatistics'],
+        )
+        async def nstatistics_callback(message: types.Message) -> None:
+            """Estatísticas"""
+            descriptions: list = [
+                'botonaro',
+                'natural',
+                'statistics',
+                dispatcher.config.personalidade,
+                message.chat.type,
+            ] # descriptions
+            await message_callback(message, descriptions)
+            reply: str = "Não consegui :("
+            try:
+                await message.answer_chat_action("typing")
+                reply: str = await statistics_all()
+            except Exception as e1:
+                logger.exception(e1)
+                reply: str = "Erro calculando estatísticas"
+                await error_callback(reply, message, e1,
+                    ['exception'] + descriptions)
+            command: types.Message = await message.reply(reply)
+            await command_callback(command, descriptions)
         @dispatcher.message_handler(
             filters.IDFilter(
                 user_id = dispatcher.config.telegram['users']['alpha'] + \
@@ -191,7 +219,7 @@ async def add_instance_handlers(dispatcher: Dispatcher) -> None:
             commands = ['ncon', 'ncount'],
         )
         async def ncount_callback(message: types.Message) -> None:
-            """NLTK text.concordance()"""
+            """Estatísticas: conta quantas vezes uma palavra foi dita"""
             descriptions: list = [
                 'botonaro',
                 'natural',

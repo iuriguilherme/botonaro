@@ -10,6 +10,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 import glob
+import nltk
+import pandas
 from aiogram import (
     Dispatcher,
     types,
@@ -25,7 +27,9 @@ from plugins.natural import (
     count_1,
     dispersion_plot_1,
     generate,
+    remove_punctuation_1,
     similar_1,
+    text_from_list,
 )
 
 async def get_telegram_texts(chat_id: str) -> list[str]:
@@ -82,6 +86,7 @@ async def get_all_telegram_texts() -> list[list[str]]:
 
 async def get_all_telegram_messages() -> list[list[dict]]:
     """Retorna todas mensagens de todos chats"""
+    bot_id: str = Dispatcher.get_current().bot.id
     messages: list[list[dict]] = []
     try:
         for chat in glob.glob(f"instance/zodb/bots/{bot_id}/chats/*.fs"):
@@ -165,52 +170,85 @@ async def count_all(word: str) -> dict:
     except Exception as e:
         logger.exception(e)
 
-# ~ async def dispersion_all(word: str) -> object:
-    # ~ """Estatísticas: dispersão léxica (todos chats)"""
-    # ~ try:
-        # ~ texts: list[str] = [
-            # ~ text for texts in \
-            # ~ await get_all_telegram_texts() \
-            # ~ for text in texts
-        # ~ ]
-        # ~ dispersions: str = await dispersion_plot_1(texts, word)
-        # ~ return dispersions
-    # ~ except Exception as e:
-        # ~ logger.exception(e)
-
 async def statistics_all() -> str:
     """Estatísticas: várias estatísticas"""
-    return "nada"
-    # ~ dataframe_messages = [{
-        # ~ 'date': message['date'],
-        # ~ 'text': message.get('text', ''),
-        # ~ 'message_id': message['message_id'],
-        # ~ 'from_id': message['from']['id'],
-        # ~ 'from_is_bot': message['from']['is_bot'],
-        # ~ 'from_first_name': message['from']['first_name'],
-        # ~ 'from_last_name': message['from'].get('last_name', ''),
-        # ~ 'from_username': message['from'].get('username', ''),
-        # ~ 'from_language_code': message['from'].get(
-            # ~ 'language_code', ''),
-        # ~ } for message in messages[1]]
-    # ~ df = pandas.DataFrame(dataframe_messages)
-    # ~ texts = [message.get('text', '') for message in messages[1]]
-    # ~ words = await text_from_list(texts)
-    # ~ series = pandas.Series(words)
-    # ~ reply_text = f"""
-# ~ Estatísticas para {message.chat.mention}:
+    try:
+        all_messages: list[tuple] = await get_all_telegram_messages()
+        dataframe_messages: list[dict] = [
+            {
+                'date': message.get('date'),
+                'text': message.get('text', ''),
+                'message_id': message.get('message_id'),
+                'from_id': message.get('from').get('id'),
+                'from_is_bot': message.get('from').get('is_bot'),
+                'from_first_name': message.get('from').get('first_name'),
+                'from_last_name': message.get('from').get('last_name', ''),
+                'from_username': message.get('from').get('username', ''),
+                'from_language_code': message.get('from').get(
+                    'language_code',
+                    '',
+                ),
+            } \
+            for messages in all_messages \
+            for message in messages \
+        ]
+        df: pandas.DataFrame = pandas.DataFrame(dataframe_messages)
+        texts: list = [
+            message.get('text', '') \
+            for messages in all_messages \
+            for message in messages \
+        ]
+        words: list = [
+            word for sent in texts for \
+            word in sent.split(' ') \
+            if word not in [
+                ',', 'que', 'o', 'de', '?', 'é', 'a', 'não', '.', 'e', 'eu', \
+                '@', 'do', 'um', 'pra', 'no', 'Eu',
+            ]
+        ]
+        words: nltk.Text = nltk.Text(nltk.tokenize.word_tokenize(' '.join(
+            words)))
+        # ~ words: nltk.Text = await text_from_list(texts)
+        most_common: dict = words.vocab().most_common(10)
+        series: pandas.Series = pandas.Series(words)
+        reply_text = f"""
+Estatísticas para {(await Dispatcher.get_current().bot.me).first_name}:
 
-# ~ Mensagens pesquisadas: últimas {len(messages[1])} de um total de \
-# ~ {messages[0]}
-# ~ Total de palavras: {len(words)}
-# ~ Diversidade léxica (porcentagem de palavras únicas): \
-# ~ {(len(set(words)) / len(words)):.2f}% ({len(set(words))} palavras única\
-# ~ s)
-# ~ Palavra mais usada: {words.vocab().most_common(1)[0][0]} (\
-# ~ {words.vocab().most_common(1)[0][1]} vezes)
-# ~ Pessoa que escreve mais: \
-# ~ {df['from_first_name'].value_counts().idxmax()} \
+Mensagens pesquisadas: últimas \
+{sum([len(messages) for messages in all_messages])} de um total de \
+{sum([len(messages) for messages in all_messages])}
+Total de palavras: {len(words)}
+Diversidade léxica (porcentagem de palavras únicas): \
+{(len(set(words)) / len(words)):.2f}% ({len(set(words))} palavras única\
+s)
+Palavras mais usadas:
+{most_common[0][0]} (\
+{most_common[0][1]} vezes)
+{most_common[1][0]} (\
+{most_common[1][1]} vezes)
+{most_common[2][0]} (\
+{most_common[2][1]} vezes)
+{most_common[3][0]} (\
+{most_common[3][1]} vezes)
+{most_common[4][0]} (\
+{most_common[4][1]} vezes)
+{most_common[5][0]} (\
+{most_common[5][1]} vezes)
+{most_common[6][0]} (\
+{most_common[6][1]} vezes)
+{most_common[7][0]} (\
+{most_common[7][1]} vezes)
+{most_common[8][0]} (\
+{most_common[8][1]} vezes)
+{most_common[9][0]} (\
+{most_common[9][1]} vezes)
+"""
+# ~ Pessoa que escreve mais: {df['from_first_name'].value_counts().idxmax()} \
 # ~ ({len([message for message in dataframe_messages if 
 # ~ message['from_first_name'] == df['from_first_name'
 # ~ ].value_counts().idxmax()])} mensagens)
 # ~ """
+        return reply_text
+    except Exception as e:
+        logger.exception(e)
+        return f"Não consegui calcular as estatísticas porque {repr(e)}"
