@@ -1,0 +1,466 @@
+<!DOCTYPE HTML>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description"
+        content="Botonaro, Bot do Bolsonaro com dados do Metamemo">
+    <meta name="author"
+        content="Iuri Guilherme <https://iuri.neocities.org/>">
+    <meta name="generator" content="Eu mesmo 1.0">
+    <link rel="canonical" href="https://botonaro.iuri.xyz/">
+<!--
+    <link rel="icon" href="./favicon.ico">
+-->
+    <title>Botonaro</title>
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+        rel="stylesheet"
+        crossorigin="anonymous" 
+    >
+    <link
+        href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css"
+        rel="stylesheet"
+        crossorigin="anonymous"
+    >
+    <link href="index.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="collapse bg-dark" id="navbarHeader">
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-8 col-md-7 py-4">
+                        <h4 class="text-white">Sobre</h4>
+                        <p class="text-muted">Botonaro &eacute; desenvolvido 
+                            com amor e &oacute;dio por Iuri Guilherme a partir 
+                            dos dados do Bolsodata, parte do projeto Metamemo. 
+                            Este projeto foi financiado por microbolsas 
+                            em parceria com a Associa&ccedil;&atilde;o 
+                            Brasileira de Imprensa em 2022. 
+                            C&oacute;digo fonte dispon&iacute;vel no Github. 
+                            Licenciado com CC 4.0 BY SA.
+                        </p>
+                    </div>
+                    <div class="col-sm-4 offset-md-1 py-4">
+                        <h4 class="text-white">Links</h4>
+                        <ul class="list-unstyled">
+                            <li><a class="text-white" target="_blank"
+                                href="https://github.com/iuriguilherme/botonaro"
+                            >Botonaro</a></li>
+                            <li><a class="text-white" target="_blank"
+                                href="http://metamemo.info/"
+                            >Metamemo</a></li>
+                            <li><a class="text-white" target="_blank"
+                                href="http://www.abi.org.br/abi-e-metamemo-divulgam-selecionados-para-microbolsas-da-projeto-bolsodata/"
+                            >ABI</a></li>
+                            <li><a class="text-white" target="_blank"
+                                href="https://iuri.neocities.org/"
+                            >Iuri Guilherme</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="navbar navbar-dark bg-dark shadow-sm">
+            <div class="container">
+                <a href="#" class="navbar-brand d-flex align-items-center">
+                <i class="fa-solid fa-robot"></i>
+                &nbsp;
+                <strong>Botonaro</strong>
+                </a>
+                <button
+                    class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarHeader"
+                    aria-controls="navbarHeader"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation"
+                >
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+        </div>
+    </header>
+    <main>
+        <section class="py-5 text-center container">
+            <div class="row py-lg-5">
+                <div class="col-lg-6 col-md-8 mx-auto">
+                    <h1 class="fw-light">Metamemo</h1>
+                    <p class="lead text-muted">METAMEMO &eacute; um sistema 
+                        criado para coletar, armazenar e visualizar as 
+                        mem&oacute;rias de qualquer pessoa (ou 
+                        organiza&ccedil;&atilde;o, coletivo, empresa, marca) 
+                        nas mais populares plataformas de redes sociais da 
+                        internet. O objetivo &eacute; preservar e facilitar a 
+                        an&aacute;lise desse conte&uacute;do por parte de 
+                        ativistas, jornalistas e pesquisadores.
+                    </p>
+                    <p class="lead text-muted">Um METAMEMO &eacute; um arquivo 
+                        contendo um arquivo das redes sociais e suas 
+                        respectivas m&iacute;dias agregadas de uma pessoa / 
+                        coletivo / empresa / marca.
+                    </p>
+                    <p>
+                        <a
+                            href="http://metamemo.info/"
+                            class="btn btn-primary my-2"
+                            target="_blank"
+                        >Mais informa&ccedil;&otilde;es</a>
+                        <a
+                            href="http://metamemo.info/blog/"
+                            class="btn btn-secondary my-2"
+                            target="_blank"
+                        >Metamix Blog</a>
+                    </p>
+                </div>
+            </div>
+        </section>
+        <section class="py-5 text-center container">
+            <div class="row py-lg-5">
+                <div class="col-lg-6 col-md-8 mx-auto">
+                    <h1 class="fw-light">Bolsodata</h1>
+                    <p class="lead text-muted">Organizado pela Metamemo, o 
+                        BolsoData reúne quase 74 mil postagens da 
+                        fam&iacute;lia Bolsonaro desde 2008. Todas elas podem 
+                        ser pesquisadas, com filtros por palavras-chave, e 
+                        n&acilte;o podem ser apagadas pelos autores ou pelos 
+                        provedores.
+                    </p>
+                    <p class="lead text-muted">O Bolsodata segue sendo 
+                        atualizado diariamente com novas 
+                        publica&ccedil;&otilde;es, monitorando diversas fontes 
+                        de distrubi&ccedil;&atilde;o de conte&uacute;do (
+                        Instagram, Facebook, Youtube, Telegram, Twitter, 
+                        Folha de S&atilde;o Paulo) da fam&iacute;lia Bolsonaro 
+                        (Jair Bolsonaro, Carlos Bolsonaro, Fl&aacute;vio 
+                        Bolsonaro, Eduardo Bolsonaro).
+                    </p>
+                    <p>
+                        <a
+                            href="http://metamemo.info/content/timeline"
+                            class="btn btn-primary my-2"
+                            target="_blank"
+                        >Ver linha do tempo</a>
+                        <a
+                            href="https://github.com/funesomemorioso/metamemo"
+                            class="btn btn-secondary my-2"
+                            target="_blank"
+                        >C&oacute;digo fonte</a>
+                    </p>
+                </div>
+            </div>
+        </section>
+        <section class="py-5 text-center container">
+            <div class="row py-lg-5">
+                <div class="col-lg-6 col-md-8 mx-auto">
+                    <h1 class="fw-light">Botonaro</h1>
+                    <p class="lead text-muted">Botonaro &eacute; um chatbot 
+                        atualmente dispon&iacute;vel como Bot de Telegram que 
+                        &eacute; programado para responder mensagens como se 
+                        fosse um Bolsonaro. Ele l&ecirc; o que &eacute; dito, 
+                        pesquisa no banco de dados Bolsodata e escolhe uma 
+                        frase aleat&oacute;ria para dar como resposta.
+                    </p>
+                    <p class="lead text-muted">O bot de Telegram j&aacute; 
+                        est&aacute; no ar e funciona como um sistema de busca 
+                        de Metamemos do Bolsodata. Est&aacute; em 
+                        desenvolvimento esta mesma funcionalidade por 
+                        interm&eeacute;dio de outras plataformas de mensagem 
+                        instant&acirc;nea que permitam chatbots (Discord, 
+                        Matrix, Twitter, Whatsapp, etc.) - acompanhe a parte 
+                        de an&uacute;ncios no Github para ser avisada(o) 
+                        quando estiver dispon&iacute;vel para mais 
+                        plataformas, ou ajude / opine no desenvolvimento&excl;
+                    </p>
+                    <p class="lead text-muted">Em breve estar&atilde;o 
+                        dispon&iacute;veis neste site alguns dados de estudos 
+                        de ci&ecirc;ncia dos dados, com gr&aacute;ficos e 
+                        an&aacute;lise das rea&ccedil;&otilde;es dos 
+                        usu&aacute;rios &agrave;s mensagens do Botonaro (dados 
+                        anonimizados).
+                    </p>
+                    <p class="lead text-muted">Assim que os dados do Bolsodata 
+                        forem disponibilizados aos desenvoledores e bolsistas, 
+                        est&aacute; prevista uma atualiza&ccedil;&atilde;o no 
+                        sistema do Botonaro (que &eacute; mais complexo do que 
+                        um simples chatbot) para criar um vocabul&aacute;rio 
+                        e responder de forma criativa as pessoas, efetivamente 
+                        dando "vida pro&oacute;pria", dentro do conceito de 
+                        intelig&ecirc;ncia artificial, ao Botonaro. Isto deve 
+                        tornar as intera&ccedil;&otilde;es mais interessantes.
+                    </p>
+                    <p>
+                        <a
+                            href="https://t.me/botonarobot"
+                            class="btn btn-primary my-2"
+                            target="_blank"
+                        >
+                            <i class="fa-brands fa-telegram"></i>
+                            Bot de Telegram
+                        </a>
+                        <a
+                            href="https://github.com/iuriguilherme/botonaro"
+                            class="btn btn-secondary my-2"
+                            target="_blank"
+                        >
+                            <i class="fa-brands fa-github-alt"></i>
+                            C&oacute;digo Fonte
+                        </a>
+                        <a
+                            href="https://github.com/iuriguilherme/botonaro/discussions"
+                            class="btn btn-success my-2"
+                            target="_blank"
+                        >
+                            <i class="fa-regular fa-comments"></i>
+                            An&uacute;ncios / Devlog / Sugest&otilde;es
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </section>
+        <div class="album py-5 bg-light">
+            <div class="container">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                    <div class="col">
+                        <div class="card shadow-sm">
+                            <img
+                                src="1.png"
+                                class="bd-placeholder-img card-img-top"
+                                width="100%"
+                                height="100%"
+                                role="img"
+                                aria-label="Placeholder: Thumbnail"
+                                preserveAspectRatio="xMidYMid slice"
+                                focusable="false"
+                            />
+                            <div class="card-body">
+                                <p class="card-text">Botonaro no Telegram</p>
+                                <div class="d-flex justify-content-between 
+                                    align-items-center">
+                                    <div class="btn-group">
+                                        <a
+                                            href="https://t.me/botonarobot"
+                                            type="button"
+                                            class="btn btn-sm
+                                                btn-outline-secondary"
+                                            target="_blank"
+                                        >Acesse</a>
+                                    </div>
+                                    <small class="text-muted">
+                                        (&eacute; necess&aacute;rio ter conta 
+                                        no telegram)
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card shadow-sm">
+                            <img
+                                src="2.png"
+                                class="bd-placeholder-img card-img-top"
+                                width="100%"
+                                height="100%"
+                                role="img"
+                                aria-label="Placeholder: Thumbnail"
+                                preserveAspectRatio="xMidYMid slice"
+                                focusable="false"
+                            />
+                            <div class="card-body">
+                                <p class="card-text">Exemplo de uso: 
+                                    conversando com o bot de telegram, 
+                                    qualquer mensagem enviada vai ser enviada 
+                                    para uma busca no banco de dados do 
+                                    bolsodata e o bot responder&aacute; com 
+                                    alguma frase que algu&eacute;m da 
+                                    fam&iacute;lia Bolsonaro j&aacute; falou 
+                                    sobre o assunto pesquisado. Caso a busca 
+                                    n&atilde;o retorne nenhum resultado, uma 
+                                    frase padrão &eacute; dita.
+                                </p>
+                                <div class="d-flex justify-content-between 
+                                    align-items-center">
+                                    <div class="btn-group">
+                                        <a
+                                            href="https://t.me/botonarobot"
+                                            type="button"
+                                            class="btn btn-sm
+                                                btn-outline-secondary"
+                                            target="_blank"
+                                        >Tente</a>
+                                    </div>
+                                    <small class="text-muted">
+                                        (&eacute; necess&aacute;rio ter conta 
+                                        no telegram)
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card shadow-sm">
+                            <img
+                                src="3.png"
+                                class="bd-placeholder-img card-img-top"
+                                width="100%"
+                                height="100%"
+                                role="img"
+                                aria-label="Placeholder: Thumbnail"
+                                preserveAspectRatio="xMidYMid slice"
+                                focusable="false"
+                            />
+                            <div class="card-body">
+                                <p class="card-text">Exemplo de uso em grupos 
+                                    de Telegram: Para evitar saturar um grupo 
+                                    com mensagens, quando o Botonaro &eacute; 
+                                    adicionado a um grupo de Telegram, ele 
+                                    est&aacute; configurado para responder 
+                                    somente se a frase come&ccedil;ar com uma 
+                                    palavra chave. Ent&atilde;o &eacute; 
+                                    necess&aacute;rio come&ccedil;ar a frase 
+                                    com "fale sobre".
+                                </p>
+                                <div class="d-flex justify-content-between 
+                                    align-items-center">
+                                    <div class="btn-group">
+                                        <a
+                                            href="https://t.me/botonarobot"
+                                            type="button"
+                                            class="btn btn-sm
+                                                btn-outline-secondary"
+                                            target="_blank"
+                                        >Tente</a>
+                                    </div>
+                                    <small class="text-muted">
+                                        (&eacute; necess&aacute;rio ter conta 
+                                        no telegram)
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card shadow-sm">
+                            <img
+                                src="4.png"
+                                class="bd-placeholder-img card-img-top"
+                                width="100%"
+                                height="100%"
+                                role="img"
+                                aria-label="Placeholder: Thumbnail"
+                                preserveAspectRatio="xMidYMid slice"
+                                focusable="false"
+                            />
+                            <div class="card-body">
+                                <p class="card-text">Outro exemplo de uso em 
+                                    grupos de Telegram, desta vez com comando 
+                                    padr&atilde;o para bots: o Botonaro 
+                                    responde ao comando <mark>/sobre</mark>
+                                </p>
+                                <div class="d-flex justify-content-between 
+                                    align-items-center">
+                                    <div class="btn-group">
+                                        <a
+                                            href="https://t.me/botonarobot"
+                                            type="button"
+                                            class="btn btn-sm
+                                                btn-outline-secondary"
+                                            target="_blank"
+                                        >Tente</a>
+                                    </div>
+                                    <small class="text-muted">
+                                        (&eacute; necess&aacute;rio ter conta 
+                                        no telegram)
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card shadow-sm">
+                            <img
+                                src="5.png"
+                                class="bd-placeholder-img card-img-top"
+                                width="100%"
+                                height="100%"
+                                role="img"
+                                aria-label="Placeholder: Thumbnail"
+                                preserveAspectRatio="xMidYMid slice"
+                                focusable="false"
+                            />
+                            <div class="card-body">
+                                <p class="card-text">Spoiler do Telegram: 
+                                    Por padr&atilde;o, no rodap&eacute; das 
+                                    mensagens aparecem os dados do Metamemo 
+                                    com a funcionalidade de spoiler de 
+                                    mensagem do Telegram. Para remov&ecirc;-la 
+                                    &eacute; necess&aacute;rio clicar (ou 
+                                    tocar) no spoiler, e ele vai revelar 
+                                    os metadados do Metamemo (autor, data, e 
+                                    link para a publica&ccedil;&atilde;o 
+                                    original)
+                                </p>
+                                <div class="d-flex justify-content-between 
+                                    align-items-center">
+                                    <div class="btn-group">
+                                        <a
+                                            href="https://t.me/botonarobot"
+                                            type="button"
+                                            class="btn btn-sm
+                                                btn-outline-secondary"
+                                            target="_blank"
+                                        >Veja</a>
+                                    </div>
+                                    <small class="text-muted">
+                                        (&eacute; necess&aacute;rio ter conta 
+                                        no telegram)
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <!--
+    <script
+        type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+        crossorigin="anonymous"
+    ></script>
+    <script
+        type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+        integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+        crossorigin="anonymous"
+    ></script>
+    -->
+    <script
+        type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"
+        crossorigin="anonymous"
+    ></script>
+    <script
+        type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/holderjs@2/dist/holder.min.js"
+        crossorigin="anonymous"
+    ></script>
+    <script
+        type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/js/fontawesome.min.js"
+        crossorigin="anonymous"
+    ></script>
+    <script
+        type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+        crossorigin="anonymous"
+    ></script>
+</body>
+</html>
