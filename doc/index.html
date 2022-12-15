@@ -236,6 +236,9 @@
                                 aria-label="Placeholder: Thumbnail"
                                 preserveAspectRatio="xMidYMid slice"
                                 focusable="false"
+                                data-bs-toggle="modal"
+                                data-bs-target="#imageModal"
+                                data-bs-whatever="1"
                             />
                             <div class="card-body">
                                 <p class="card-text">Botonaro no Telegram</p>
@@ -269,6 +272,9 @@
                                 aria-label="Placeholder: Thumbnail"
                                 preserveAspectRatio="xMidYMid slice"
                                 focusable="false"
+                                data-bs-toggle="modal"
+                                data-bs-target="#imageModal"
+                                data-bs-whatever="2"
                             />
                             <div class="card-body">
                                 <p class="card-text">Exemplo de uso: 
@@ -312,6 +318,9 @@
                                 aria-label="Placeholder: Thumbnail"
                                 preserveAspectRatio="xMidYMid slice"
                                 focusable="false"
+                                data-bs-toggle="modal"
+                                data-bs-target="#imageModal"
+                                data-bs-whatever="3"
                             />
                             <div class="card-body">
                                 <p class="card-text">Exemplo de uso em grupos 
@@ -354,6 +363,9 @@
                                 aria-label="Placeholder: Thumbnail"
                                 preserveAspectRatio="xMidYMid slice"
                                 focusable="false"
+                                data-bs-toggle="modal"
+                                data-bs-target="#imageModal"
+                                data-bs-whatever="4"
                             />
                             <div class="card-body">
                                 <p class="card-text">Outro exemplo de uso em 
@@ -391,6 +403,9 @@
                                 aria-label="Placeholder: Thumbnail"
                                 preserveAspectRatio="xMidYMid slice"
                                 focusable="false"
+                                data-bs-toggle="modal"
+                                data-bs-target="#imageModal"
+                                data-bs-whatever="5"
                             />
                             <div class="card-body">
                                 <p class="card-text">Spoiler do Telegram: 
@@ -427,40 +442,79 @@
             </div>
         </div>
     </main>
-    <!--
-    <script
-        type="text/javascript"
-        src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
-        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
-        crossorigin="anonymous"
-    ></script>
-    <script
-        type="text/javascript"
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
-        integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
-        crossorigin="anonymous"
-    ></script>
-    -->
-    <script
-        type="text/javascript"
-        src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"
-        crossorigin="anonymous"
-    ></script>
-    <script
-        type="text/javascript"
-        src="https://cdn.jsdelivr.net/npm/holderjs@2/dist/holder.min.js"
-        crossorigin="anonymous"
-    ></script>
-    <script
-        type="text/javascript"
-        src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/js/fontawesome.min.js"
-        crossorigin="anonymous"
-    ></script>
-    <script
-        type="text/javascript"
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
-        crossorigin="anonymous"
-    ></script>
+    <footer>
+        <div
+            class="modal modal-lg fade"
+            id="imageModal"
+            tabindex="-1"
+            aria-labelledby="imageModalLabel"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1
+                            class="modal-title fs-5"
+                            id="imageModalLabel"
+                        >Ver Imagem</h1>
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                    <div class="modal-body">
+                        <img
+                            src=""
+                            class="bd-placeholder-img card-img-top"
+                            width="100%"
+                            height="100%"
+                            role="img"
+                            aria-label="Placeholder: Thumbnail"
+                            preserveAspectRatio="xMidYMid slice"
+                            focusable="false"
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+            integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+            crossorigin="anonymous"
+        ></script>
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+            integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+            crossorigin="anonymous"
+        ></script>
+        -->
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"
+            crossorigin="anonymous"
+        ></script>
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/holderjs@2/dist/holder.min.js"
+            crossorigin="anonymous"
+        ></script>
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/js/fontawesome.min.js"
+            crossorigin="anonymous"
+        ></script>
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+            crossorigin="anonymous"
+        ></script>
+        <script type="text/javascript" src="index.js"></script>
+    </footer>
 </body>
 </html>
