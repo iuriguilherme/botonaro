@@ -22,7 +22,7 @@ btrees==4.10.1
 cached-property==1.5.2
 cchardet==2.1.7
 cerberus==1.3.4 ; python_version >= '2.7'
-certifi==2022.9.24 ; python_version >= '3.6'
+certifi==2022.12.7 ; python_version >= '3.6'
 cffi==1.15.1
 chardet==5.0.0 ; python_version >= '3.6'
 charset-normalizer==2.1.1 ; python_full_version >= '3.6.0'
