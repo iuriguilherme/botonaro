@@ -14,6 +14,9 @@ Crie um arquivo `.env` com um par chave = valor:
 
     TELEGRAM_TOKEN = 123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11  
 
+Para obter um token de Bot de Telegram, fale com o 
+[@BotFather](https://t.me/botfather).  
+
 ```sh
 $ python -m venv venv  
 $ source venv/bin/activate # No Windows, Power Shell: .\venv\Scripts\activate  
@@ -49,6 +52,14 @@ CHANCE = 30
 
 Adaptar **SOURCES_BUSCA** para o tipo de busca pertinente.  
 
+Para usar a funcionalidade de integração com ChatGPT, adicionar ao 
+arquivo `.env`:  
+
+    OPENAI_API_KEY = sk-1234567890abcdef  
+
+Para obter uma chave de API, acesse 
+<https://platform.openai.com/account/api-keys>  
+
 Roadmap
 ---
 
@@ -76,6 +87,7 @@ _(em desenvolvimento)_
 1. Funcionalidadas herdadas da versão 0.3
 1. Registra reações a mensagens
 1. Interface web com gráficos e estatísticas de reações
+1. A cada mensagem, uma chance de responder usando ChatGPT
 
 Licença
 ---

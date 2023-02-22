@@ -19,4 +19,3 @@ try:
 except Exception as e:
     logger.exception(e)
     sys.exit("Talquei")
-
