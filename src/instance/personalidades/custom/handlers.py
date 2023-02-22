@@ -28,6 +28,7 @@ from iacecil.controllers.util import (
     dice_low,
 )
 from plugins.natural import dispersion_plot_1
+from plugins.openai import get_aiogram_chatgpt_completion
 from .buscamemo import (
     busca_callback,
     busca_quieta,
@@ -381,17 +382,18 @@ qüestão aí talquei""",
             content_types = types.ContentTypes.TEXT,
             state = "*",
         )
-        async def chance_busca_callback(message: types.Message) -> None:
-            """Responde em uma chance aleatória"""
+        async def chance_gpt_callback(message: types.Message) -> None:
+            """Responde como ChatGPT em uma chance aleatória"""
             try:
                 if await dice_low(int(os.environ.get("CHANCE", 30))):
-                    await busca_quieta(message)
-                else:
-                    logger.debug("sem resposta")
+                    await get_aiogram_chatgpt_completion(
+                        dispatcher = dispatcher,
+                        message = message,
+                    )
             except Exception as e1:
                 logger.exception(e1)
                 await error_callback("Erro buscando frase", message,
                     e1, ['exception'])
     except Exception as e:
-        logger.error("Não consegui registrar os handlers de busca")
         logger.exception(e)
+        logger.error("Não consegui registrar os handlers de busca")

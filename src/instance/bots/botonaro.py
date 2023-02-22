@@ -27,6 +27,7 @@ class BotConfig(BaseSettings):
     plugins: dict = dict(
         enable = [
             'admin',
+            'openai',
         ], # enable
         disable = [
             'default',
@@ -108,3 +109,10 @@ class BotConfig(BaseSettings):
             ), # special
         ), # users
     ) # telegram
+    openai: dict = dict(
+        default_config.openai.copy(),
+        api_key = os.environ.get(
+            'OPENAI_API_KEY',
+            default_config.openai.get('api_key'),
+        ), # api_key
+    ) # openai
