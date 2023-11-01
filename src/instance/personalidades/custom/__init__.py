@@ -9,6 +9,8 @@ Creative Commons 4.0 Attribution Share Alike
 import logging
 logger = logging.getLogger(__name__)
 
+from aiogram import types
+
 from .handlers import add_instance_handlers
 
 async def chatgpt_prompt(
