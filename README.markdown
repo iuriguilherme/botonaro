@@ -42,8 +42,9 @@ Para usar a funcionalidade principal de busca no metamemo, adicionar ao
 arquivo `.env`:  
 
 ```
-BASE_URL = https://metamemo.org.br/consulta
-LIST_ROUTE = lista
+BASE_URL = https://metamemo.org.br
+LIST_ROUTE = consulta/lista
+CSV_ROUTE = api/lista
 ITEM_ROUTE = metamemo
 SOURCES_BUSCA = Facebook,Twitter,Youtube,Instagram,Telegram,Blog
 START_DATE_BUSCA = 2022-01-01
@@ -73,10 +74,10 @@ Chatbot de telegram, extensão de personalidade de
 [ia.cecil](https://github.com/iuriguilherme/iacecil)  
 
 1. Lê quatro tipos de mensagem:
-  1. Aquelas que contém o gatilho "fala sobre"
-  1. Aquelas que começam com o comando "/sobre"
-  1. Todas aquelas que foram enviadas para um chat particular
-  1. 1:30 chance das que forem enviadas para um grupo
+   1. Aquelas que contém o gatilho "fala sobre"
+   1. Aquelas que começam com o comando "/sobre"
+   1. Todas aquelas que foram enviadas para um chat particular
+   1. 1:30 chance das que forem enviadas para um grupo
 1. Usa o texto da mensagem para buscar na fonte de frases
 1. Responde a mensagem com a frase, incluindo a referência
 
@@ -85,9 +86,10 @@ Chatbot de telegram, extensão de personalidade de
 _(em desenvolvimento)_  
 
 1. Funcionalidadas herdadas da versão 0.3
-1. Registra reações a mensagens
-1. Interface web com gráficos e estatísticas de reações
-1. A cada mensagem, uma chance de responder usando ChatGPT
+1. ~~Registra reações a mensagens~~
+1. ~~Interface web com gráficos e estatísticas de reações~~
+1. ~~A cada mensagem, uma chance de responder usando ChatGPT~~
+1. Usa requisição com arquivos csv ao invés de web scrapping
 
 Licença
 ---

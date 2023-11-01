@@ -11,7 +11,9 @@ logger = logging.getLogger(__name__)
 
 import aiohttp
 import bs4
+import csv
 import datetime
+from io import StringIO
 import locale
 import os
 import random
@@ -70,22 +72,33 @@ data: {str(data)}\
 class ResultMixin(object):
     """Modelo para resultado da busca"""
     link: str
-    titulo: str
-    fonte: str
+    # ~ titulo: str
+    # ~ fonte: str
     data: datetime.datetime
-    metamemo: str
-    url: str
-    midia: list[str]
+    # ~ metamemo: str
+    # ~ url: str
+    # ~ midia: list[str]
+    autor: str
+    texto: str
     def __repr__(self):
         return f"""<ResultMixin(\
 link: {self.link}, \
-titulo: {self.titulo}, \
-fonte: {self.fonte}, \
 data: {str(self.data)}, \
-metamemo: {self.metamemo}, \
-url: {self.url}, \
-midia: {",".join(self.midia)}\
+autor: {self.autor}, \
+texto: {self.texto}, \
 >"""
+
+async def get_csv(url: str) -> typing.Union[object, None]:
+    """Performs async HTTP GET on URL and returns csv file"""
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                logger.debug(f"Request to {url}")
+                logger.debug(f"Status: {response.status}")
+                return await response.read()
+    except Exception as e:
+        logger.exception(e)
+        return None
 
 async def html_to_bytes(url: str) -> typing.Union[bytes, None]:
     """Performs async HTTP GET on URL and returns bytes for parsing"""
@@ -198,17 +211,20 @@ async def parse_result(result_item: bs4.element.Tag) -> ResultMixin:
         ## tempo desnecessariamente. O nome das tags mudou pelo menos uma vez 
         ## durante a fase de testes desse conjunto de subrotinas. 
         ## RESTful API or GTFO. </rant>
-        columns: bs4.element.ResultSet = result_item.find_all('div', 's1')
-        result.link: str = columns[0].find('a', 'icon-eye').get('href')
-        result.titulo: str = result_item.find('div', 's5').text
-        result.fonte: str = columns[1].find('i').get('class')[1].split('-'
-            )[1].strip('1').capitalize()
+        columns: bs4.element.ResultSet = result_item.find_all(
+          'td',
+          'n-data-table-td',
+        )
+        result.autor: str = columns[0].find('div').text
+        result.link: str = columns[1].find('button').get('title')
         result.data: datetime.datetime = datetime.datetime.strptime(
-            " ".join([columns[2].text, columns[3].text]), "%d/%m/%Y %H:%M")
-        result.metamemo: str = columns[4].text
-        result.url: str = columns[5].find('a').get('href')
-        result.midia: list[str] = [a.get('href') for a in \
-            columns[6].find_all('a')]
+            columns[2].text, "%d/%m/%Y às %H:%M:%S")
+        result.autor: str = columns[3].text
+        # ~ result.url: str = ""
+        # ~ result.titulo: str = ""
+        # ~ result.fonte: str = ""
+        # ~ result.midia: list[str] = [""]
+        # ~ result.metamemo: str = ""
         return result
     except Exception as e:
         logger.exception(e)
@@ -249,12 +265,56 @@ async def busca_frase(
             + f"&start_date={start_date}" \
             + f"&end_date={end_date}"
         logger.debug(f"Buscando em {url}")
-        soup: BeautifulSoup = await bytes_to_soup(await html_to_bytes(url))
-        results: bs4.element.ResultSet = soup.find('div', 'search-results')
-        results: bs4.element.ResultSet = results.find_all('div', 'result-item')
-        retornos: list = [await parse_result(result) for result in results]
-        logger.debug(f"Encontrados {len(retornos)} resultados")
+        logger.debug(await html_to_bytes(url))
+        soup: BeautifulSoup = await bytes_to_soup(
+            await html_to_bytes(url))
+        logger.debug(soup)
+        results: bs4.element.ResultSet = soup.find(
+            'table',
+            'n-data-table-tbody',
+        )
+        results: bs4.element.ResultSet = results.find_all(
+            'tr',
+            'n-data-table-tr',
+        )
+        logger.debug(f"Encontrados {len(results)} resultados")
+        retornos: list = [await parse_result(result) \
+            for result in results]
+        logger.debug(f"Processados {len(retornos)} resultados")
         return retornos
+    except Exception as e:
+        logger.exception(e)
+        return []
+
+async def busca_frase_csv(
+    palavras: list[str],
+) -> typing.Union[list, list[ResultMixin]]:
+    """Faz requisição para API com csv"""
+    try:
+        logger.debug("Busca frase")
+        fonte_url: str = "/".join([
+            os.environ.get("BASE_URL", "http://example.com"),
+            os.environ.get("CSV_ROUTE", "/"),
+        ])
+        sources: list = os.environ.get("SOURCES_BUSCA").split(',')
+        start_date: str = os.environ.get("START_DATE_BUSCA")
+        end_date: str = datetime.datetime.today().strftime("%Y-%m-%d")
+        url: str = f"{fonte_url}/?format=csv&" \
+            + "&".join([f"source={source}" for source in sources]) \
+            + f"&content={'%20'.join(palavras)}" \
+            + f"&start_date={start_date}" \
+            + f"&end_date={end_date}"
+        logger.debug(f"Buscando em {url}")
+        csv_response: bytes = await get_csv(url)
+        with StringIO(csv_response.decode()) as csv_file:
+            csv_data: object = csv.reader(csv_file, delimiter = ",")
+            # ~ logger.debug(type(csv_data))
+            # ~ logger.debug(random.choice(list(csv_data))[6])
+            # ~ for l in csv_data:
+                # ~ logger.info("teste")
+                # ~ logger.info(l)
+                # ~ logger.info("fim do teste")
+            return [r[6] for r in list(csv_data)]
     except Exception as e:
         logger.exception(e)
         return []
@@ -266,77 +326,80 @@ async def busca_callback(
 ) -> typing.Union[types.Message, None]:
     """Busca frase de acordo com palavras chave"""
     try:
-        frases: list[ResultMixin] = [
-            frase for frase in \
-            await busca_frase(palavras) \
-            if hasattr(frase, 'link')
-        ]
+        # ~ frases: list[ResultMixin] = [
+            # ~ frase for frase in \
+            # ~ await busca_frase(palavras) \
+            # ~ if hasattr(frase, 'link')
+        # ~ ]
+        frases: list[str] = await busca_frase_csv(palavras)
         if len(frases) < 1:
             raise ZeroResultsException("Nenhum resultado")
         else:
-            item: ItemMixin = await busca_item(random.choice(
-                frases).link)
-            formato_data: str = "em %d/%m/%Y às %H:%M"
-            if locale.getlocale()[0] == "pt_BR":
-                formato_data: str = "%A, %d/%m/%Y às %H:%M"
-            captions: list = [f"""Publicado por {item.metamemo} \
-{item.data.strftime(formato_data)}."""]
-            if int(item.apoios) + int(item.comentarios) > 0:
-                captions.append(f"{item.apoios} " + u"\U0001f44d" + \
-                    f"{item.comentarios} " + u"\U0001f4ac")
-            if item.link not in [None, '', ' ']:
-                captions.append(f"Link: {item.link}")
-            caption: str = markdown.spoiler("\n".join(captions))
-            texto: str = "\n".join([markdown.escape_md(item.texto),
-                "", caption])
+            # ~ item: ItemMixin = await busca_item(random.choice(
+                # ~ frases).link)
+            item: str = random.choice(frases)
+            # ~ formato_data: str = "em %d/%m/%Y às %H:%M"
+            # ~ if locale.getlocale()[0] == "pt_BR":
+                # ~ formato_data: str = "%A, %d/%m/%Y às %H:%M"
+            # ~ captions: list = [f"""Publicado por {item.autor} \
+# ~ {item.data.strftime(formato_data)}."""]
+            # ~ if int(item.apoios) + int(item.comentarios) > 0:
+                # ~ captions.append(f"{item.apoios} " + u"\U0001f44d" + \
+                    # ~ f"{item.comentarios} " + u"\U0001f4ac")
+            # ~ if item.link not in [None, '', ' ']:
+                # ~ captions.append(f"Link: {item.link}")
+            # ~ caption: str = markdown.spoiler("\n".join(captions))
+            # ~ texto: str = "\n".join([markdown.escape_md(item.texto),
+                # ~ "", caption])
+            texto: str = markdown.escape_md(item)
             if len(texto) < 24+1e3:
                 caption: str = texto
-        if item.video is not None:
-            try:
-                command: types.Message = await message.reply_video(
-                    video = URLInputFile.from_url(item.video),
-                    caption = caption,
-                    parse_mode = "MarkdownV2",
-                    disable_notification = True,
-                    # ~ disable_web_page_preview = True,
-                    allow_sending_without_reply = True,
-                )
-                try:
-                    logger.debug(command.get('ok'))
-                except Exception as e3:
-                    logger.exception(e3)
-                try:
-                    logger.debug(getattr(command, 'ok'))
-                except Exception as e3:
-                    logger.exception(e3)
-                return command
-            except Exception as e2:
-                logger.exception(e2)
-                await error_callback("Erro tentando mandar vídeo",
-                    message, e2, ['exception'] + descriptions)
-        elif item.imagem is not None:
-            try:
-                command: types.Message = await message.reply_photo(
-                    photo = URLInputFile.from_url(item.imagem),
-                    caption = caption,
-                    parse_mode = "MarkdownV2",
-                    disable_notification = True,
-                    # ~ disable_web_page_preview = True,
-                    allow_sending_without_reply = True,
-                )
-                try:
-                    logger.debug(command.get('ok'))
-                except Exception as e3:
-                    logger.exception(e3)
-                try:
-                    logger.debug(getattr(command, 'ok'))
-                except Exception as e3:
-                    logger.exception(e3)
-                return command
-            except Exception as e2:
-                logger.exception(e2)
-                await error_callback("Erro tentando mandar imagem",
-                    message, e2, ['exception'] + descriptions)
+        # ~ if item.video is not None:
+            # ~ try:
+                # ~ command: types.Message = await message.reply_video(
+                    # ~ video = URLInputFile.from_url(item.video),
+                    # ~ caption = caption,
+                    # ~ parse_mode = "MarkdownV2",
+                    # ~ disable_notification = True,
+                    ## disable_web_page_preview = True,
+                    # ~ allow_sending_without_reply = True,
+                # ~ )
+                # ~ try:
+                    # ~ logger.debug(command.get('ok'))
+                # ~ except Exception as e3:
+                    # ~ logger.exception(e3)
+                # ~ try:
+                    # ~ logger.debug(getattr(command, 'ok'))
+                # ~ except Exception as e3:
+                    # ~ logger.exception(e3)
+                # ~ return command
+            # ~ except Exception as e2:
+                # ~ logger.exception(e2)
+                # ~ await error_callback("Erro tentando mandar vídeo",
+                    # ~ message, e2, ['exception'] + descriptions)
+        # ~ elif item.imagem is not None:
+            # ~ try:
+                # ~ command: types.Message = await message.reply_photo(
+                    # ~ photo = URLInputFile.from_url(item.imagem),
+                    # ~ caption = caption,
+                    # ~ parse_mode = "MarkdownV2",
+                    # ~ disable_notification = True,
+                    # ~ ## disable_web_page_preview = True,
+                    # ~ allow_sending_without_reply = True,
+                # ~ )
+                # ~ try:
+                    # ~ logger.debug(command.get('ok'))
+                # ~ except Exception as e3:
+                    # ~ logger.exception(e3)
+                # ~ try:
+                    # ~ logger.debug(getattr(command, 'ok'))
+                # ~ except Exception as e3:
+                    # ~ logger.exception(e3)
+                # ~ return command
+            # ~ except Exception as e2:
+                # ~ logger.exception(e2)
+                # ~ await error_callback("Erro tentando mandar imagem",
+                    # ~ message, e2, ['exception'] + descriptions)
         command: types.Message = await message.reply(
             text = texto,
             parse_mode = "MarkdownV2",
