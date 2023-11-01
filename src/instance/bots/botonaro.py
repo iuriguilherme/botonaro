@@ -27,7 +27,7 @@ class BotConfig(BaseSettings):
     plugins: dict = dict(
         enable = [
             'admin',
-            'openai',
+            #'openai', # Essa merda tá quebrando os handlers do botonaro
         ], # enable
         disable = [
             'default',

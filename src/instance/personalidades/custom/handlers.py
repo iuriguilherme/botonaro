@@ -47,6 +47,7 @@ from .natural import (
 
 async def add_instance_handlers(dispatcher: Dispatcher) -> None:
     """Registra handlers para aiogram.Dispatcher, lida com Telegram"""
+    logger.debug(f"add_instance_handlers iniciado para {__name__}")
     try:
         @dispatcher.message_handler(
             filters.IDFilter(
@@ -397,3 +398,4 @@ qüestão aí talquei""",
     except Exception as e:
         logger.exception(e)
         logger.error("Não consegui registrar os handlers de busca")
+    logger.debug(f"add_instance_handlers finalizado para {__name__}")
