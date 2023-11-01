@@ -235,6 +235,7 @@ async def busca_frase(
 ) -> typing.Union[list, list[ResultMixin]]:
     """Retorna o resultado de uma busca em BASE_URL"""
     try:
+        logger.debug("Busca frase")
         fonte_url: str = "/".join([
             os.environ.get("BASE_URL", "http://example.com"),
             os.environ.get("LIST_ROUTE", "/"),

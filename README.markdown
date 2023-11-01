@@ -43,8 +43,8 @@ arquivo `.env`:
 
 ```
 BASE_URL = https://metamemo.org.br/consulta
-LIST_ROUTE = /lista
-ITEM_ROUTE = /metamemo
+LIST_ROUTE = lista
+ITEM_ROUTE = metamemo
 SOURCES_BUSCA = Facebook,Twitter,Youtube,Instagram,Telegram,Blog
 START_DATE_BUSCA = 2022-01-01
 CHANCE = 30
