@@ -4,6 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+certifi = "*"
 iacecil = {editable = "true", git = "https://github.com/iuriguilherme/iacecil.git", ref = "0.2.14.5"}
 pydantic = {extras = ['dotenv'], version = "*"}
 

@@ -11,12 +11,14 @@ logger = logging.getLogger(__name__)
 
 import aiohttp
 import bs4
+import certifi
 import csv
 import datetime
 from io import StringIO
 import locale
 import os
 import random
+import ssl
 import typing
 from aiogram import (
     Dispatcher,
@@ -96,6 +98,21 @@ async def get_csv(url: str) -> typing.Union[object, None]:
                 logger.debug(f"Request to {url}")
                 logger.debug(f"Status: {response.status}")
                 return await response.read()
+    except aiohttp.client_exceptions.ClientConnectorCertificateError:
+      try:
+          async with aiohttp.ClientSession(
+                connector = aiohttp.TCPConnector(
+                    ssl = ssl.create_default_context(
+                        cafile = certifi.where()
+                    )
+                )
+            ) as session:
+                async with session.get(url) as response:
+                    logger.debug(f"Request to {url}")
+                    logger.debug(f"Status: {response.status}")
+                    return await response.read()
+      except:
+          raise
     except Exception as e:
         logger.exception(e)
         return None
