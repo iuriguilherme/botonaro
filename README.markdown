@@ -2,7 +2,7 @@ Botonaro
 ===
 
 Chatbot que interage com material do Bolsodata do 
-[Metamemo](https://metamemo.info/).  
+[Metamemo](https://metamemo.org.br/).  
 
 Instruções
 ---
@@ -42,7 +42,7 @@ Para usar a funcionalidade principal de busca no metamemo, adicionar ao
 arquivo `.env`:  
 
 ```
-BASE_URL = http://metamemo.info
+BASE_URL = https://metamemo.org.br/consulta
 LIST_ROUTE = /lista
 ITEM_ROUTE = /metamemo
 SOURCES_BUSCA = Facebook,Twitter,Youtube,Instagram,Telegram,Blog
@@ -67,7 +67,7 @@ Roadmap
 
 Protótipo para apresentação para o Bolsodata  
 
-### [Alpha v0.3](https://github.com/iuriguilherme/botonaro/releases/tag/alpha)
+### [Beta v0.3](https://github.com/iuriguilherme/botonaro/releases/tag/beta)
 
 Chatbot de telegram, extensão de personalidade de 
 [ia.cecil](https://github.com/iuriguilherme/iacecil)  
@@ -80,7 +80,7 @@ Chatbot de telegram, extensão de personalidade de
 1. Usa o texto da mensagem para buscar na fonte de frases
 1. Responde a mensagem com a frase, incluindo a referência
 
-### [Alpha v0.4](https://github.com/iuriguilherme/botonaro/releases/tag/v0.4.0)
+### [Alpha v0.4](https://github.com/iuriguilherme/botonaro/releases/tag/0.4)
 
 _(em desenvolvimento)_  
 
